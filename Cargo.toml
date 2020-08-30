@@ -1,8 +1,12 @@
 [package]
-name = "Leonhard"
+name = "leonhard"
 version = "0.1.0"
 authors = ["screwdriver_ <luc14860@gmail.com>"]
 edition = "2018"
+
+[lib]
+name = "leonhard"
+path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

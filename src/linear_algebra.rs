@@ -1,35 +1,42 @@
 use std::cmp::min;
 
-trait Tensor<T> {
+trait Value: Default + Copy
+	+ std::ops::AddAssign
+	+ std::ops::SubAssign
+	+ std::ops::MulAssign
+	+ std::ops::DivAssign {}
+
+trait Tensor<T: Value> {
 	fn add_val(&mut self, n: &T);
-	fn add(&mut self, n: &Self);
+	fn add_self(&mut self, n: &Self);
+
 	fn subtract_val(&mut self, n: &T);
-	fn subtract(&mut self, n: &Self);
+	fn subtract_self(&mut self, n: &Self);
+
 	fn multiply_val(&mut self, n: &T);
-	fn multiply(&mut self, n: &Self);
+	fn multiply_self(&mut self, n: &Self);
+
 	fn divide_val(&mut self, n: &T);
-	fn divide(&mut self, n: &Self);
+	fn divide_self(&mut self, n: &Self);
 }
 
-struct Matrix<T> {
-	height: usize,
-	width: usize,
+#[derive(Clone)]
+struct Matrix<T: Value> {
+	pub height: usize,
+	pub width: usize,
 	data: Vec<T>,
 }
 
-struct Vector<T> {
-	size: usize,
-	data: Vec<T>,
-}
-
-impl<T> Matrix::<T> where T: Default + Copy + std::ops::AddAssign {
+impl<T: Value> Matrix::<T> {
 	pub fn new(height: usize, width: usize) -> Self {
 		// TODO Check that `width` and `height` are not `0`
-		Self {
+		let mut mat = Self {
 			height: height,
 			width: width,
 			data: Vec::with_capacity(height * width),
-		}
+		};
+		mat.data.resize(height * width, T::default());
+		mat
 	}
 
 	pub fn is_square(&self) -> bool {
@@ -70,38 +77,121 @@ impl<T> Matrix::<T> where T: Default + Copy + std::ops::AddAssign {
 	}
 }
 
-impl<T> Tensor::<T> for Matrix::<T> where T: Default + Copy + std::ops::AddAssign {
+impl<T: Value> Tensor::<T> for Matrix::<T> {
 	fn add_val(&mut self, n: &T) {
 		for i in &mut self.data {
 			*i += *n;
 		}
 	}
 
-	fn add(&mut self, n: &Self) {
-		// TODO
+	fn add_self(&mut self, n: &Self) {
+		for i in 0..min(self.data.len(), n.data.len()) {
+			self.data[i] += n.data[i];
+		}
 	}
 
 	fn subtract_val(&mut self, n: &T) {
-		// TODO
+		for i in &mut self.data {
+			*i -= *n;
+		}
 	}
 
-	fn subtract(&mut self, n: &Self) {
-		// TODO
+	fn subtract_self(&mut self, n: &Self) {
+		for i in 0..min(self.data.len(), n.data.len()) {
+			self.data[i] -= n.data[i];
+		}
 	}
 
 	fn multiply_val(&mut self, n: &T) {
-		// TODO
+		for i in &mut self.data {
+			*i *= *n;
+		}
 	}
 
-	fn multiply(&mut self, n: &Self) {
-		// TODO
+	fn multiply_self(&mut self, n: &Self) {
+		for i in 0..min(self.data.len(), n.data.len()) {
+			self.data[i] *= n.data[i];
+		}
 	}
 
 	fn divide_val(&mut self, n: &T) {
-		// TODO
+		for i in &mut self.data {
+			*i /= *n;
+		}
 	}
 
-	fn divide(&mut self, n: &Self) {
-		// TODO
+	fn divide_self(&mut self, n: &Self) {
+		for i in 0..min(self.data.len(), n.data.len()) {
+			self.data[i] /= n.data[i];
+		}
 	}
+}
+
+impl<T: Value> std::ops::Add<T> for Matrix::<T> {
+	type Output = Matrix::<T>;
+
+	fn add(self, n: T) -> Matrix::<T> {
+		let mut m = self.clone();
+		m.add_val(&n);
+		m
+	}
+}
+
+impl<T: Value> std::ops::AddAssign<T> for Matrix::<T> {
+	fn add_assign(&mut self, n: T) {
+		self.add_val(&n);
+	}
+}
+
+impl<T: Value> std::ops::Sub<T> for Matrix::<T> {
+	type Output = Matrix::<T>;
+
+	fn sub(self, n: T) -> Matrix::<T> {
+		let mut m = self.clone();
+		m.subtract_val(&n);
+		m
+	}
+}
+
+impl<T: Value> std::ops::SubAssign<T> for Matrix::<T> {
+	fn sub_assign(&mut self, n: T) {
+		self.subtract_val(&n);
+	}
+}
+
+impl<T: Value> std::ops::Mul<T> for Matrix::<T> {
+	type Output = Matrix::<T>;
+
+	fn mul(self, n: T) -> Matrix::<T> {
+		let mut m = self.clone();
+		m.multiply_val(&n);
+		m
+	}
+}
+
+impl<T: Value> std::ops::MulAssign<T> for Matrix::<T> {
+	fn mul_assign(&mut self, n: T) {
+		self.multiply_val(&n);
+	}
+}
+
+impl<T: Value> std::ops::Div<T> for Matrix::<T> {
+	type Output = Matrix::<T>;
+
+	fn div(self, n: T) -> Matrix::<T> {
+		let mut m = self.clone();
+		m.divide_val(&n);
+		m
+	}
+}
+
+impl<T: Value> std::ops::DivAssign<T> for Matrix::<T> {
+	fn div_assign(&mut self, n: T) {
+		self.divide_val(&n);
+	}
+}
+
+struct Vector<T: Value> {
+	size: usize,
+	data: Vec<T>,
 }
