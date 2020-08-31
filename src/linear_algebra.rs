@@ -1,12 +1,16 @@
 use std::cmp::min;
 
-trait Value: Default + Copy
+trait Value<T>: Default + Copy
+	+ std::ops::Add<Output = T>
 	+ std::ops::AddAssign
+	+ std::ops::Sub<Output = T>
 	+ std::ops::SubAssign
+	+ std::ops::Mul<Output = T>
 	+ std::ops::MulAssign
+	+ std::ops::Div<Output = T>
 	+ std::ops::DivAssign {}
 
-trait Tensor<T: Value> {
+trait Tensor<T: Value<T>> {
 	fn add_val(&mut self, n: &T);
 	fn add_self(&mut self, n: &Self);
 
@@ -21,13 +25,13 @@ trait Tensor<T: Value> {
 }
 
 #[derive(Clone)]
-struct Matrix<T: Value> {
-	pub height: usize,
-	pub width: usize,
+struct Matrix<T: Value<T>> {
+	height: usize,
+	width: usize,
 	data: Vec<T>,
 }
 
-impl<T: Value> Matrix::<T> {
+impl<T: Value<T>> Matrix::<T> {
 	pub fn new(height: usize, width: usize) -> Self {
 		// TODO Check that `width` and `height` are not `0`
 		let mut mat = Self {
@@ -37,6 +41,14 @@ impl<T: Value> Matrix::<T> {
 		};
 		mat.data.resize(height * width, T::default());
 		mat
+	}
+
+	pub fn get_height(&self) -> usize {
+		self.height
+	}
+
+	pub fn get_width(&self) -> usize {
+		self.width
 	}
 
 	pub fn is_square(&self) -> bool {
@@ -77,7 +89,7 @@ impl<T: Value> Matrix::<T> {
 	}
 }
 
-impl<T: Value> Tensor::<T> for Matrix::<T> {
+impl<T: Value<T>> Tensor::<T> for Matrix::<T> {
 	fn add_val(&mut self, n: &T) {
 		for i in &mut self.data {
 			*i += *n;
@@ -85,7 +97,8 @@ impl<T: Value> Tensor::<T> for Matrix::<T> {
 	}
 
 	fn add_self(&mut self, n: &Self) {
-		for i in 0..min(self.data.len(), n.data.len()) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
 			self.data[i] += n.data[i];
 		}
 	}
@@ -97,7 +110,8 @@ impl<T: Value> Tensor::<T> for Matrix::<T> {
 	}
 
 	fn subtract_self(&mut self, n: &Self) {
-		for i in 0..min(self.data.len(), n.data.len()) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
 			self.data[i] -= n.data[i];
 		}
 	}
@@ -109,7 +123,8 @@ impl<T: Value> Tensor::<T> for Matrix::<T> {
 	}
 
 	fn multiply_self(&mut self, n: &Self) {
-		for i in 0..min(self.data.len(), n.data.len()) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
 			self.data[i] *= n.data[i];
 		}
 	}
@@ -121,13 +136,14 @@ impl<T: Value> Tensor::<T> for Matrix::<T> {
 	}
 
 	fn divide_self(&mut self, n: &Self) {
-		for i in 0..min(self.data.len(), n.data.len()) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
 			self.data[i] /= n.data[i];
 		}
 	}
 }
 
-impl<T: Value> std::ops::Add<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::Add<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn add(self, n: T) -> Matrix::<T> {
@@ -137,13 +153,13 @@ impl<T: Value> std::ops::Add<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value> std::ops::AddAssign<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::AddAssign<T> for Matrix::<T> {
 	fn add_assign(&mut self, n: T) {
 		self.add_val(&n);
 	}
 }
 
-impl<T: Value> std::ops::Sub<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::Sub<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn sub(self, n: T) -> Matrix::<T> {
@@ -153,13 +169,13 @@ impl<T: Value> std::ops::Sub<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value> std::ops::SubAssign<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::SubAssign<T> for Matrix::<T> {
 	fn sub_assign(&mut self, n: T) {
 		self.subtract_val(&n);
 	}
 }
 
-impl<T: Value> std::ops::Mul<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::Mul<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn mul(self, n: T) -> Matrix::<T> {
@@ -169,13 +185,13 @@ impl<T: Value> std::ops::Mul<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value> std::ops::MulAssign<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::MulAssign<T> for Matrix::<T> {
 	fn mul_assign(&mut self, n: T) {
 		self.multiply_val(&n);
 	}
 }
 
-impl<T: Value> std::ops::Div<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::Div<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn div(self, n: T) -> Matrix::<T> {
@@ -185,13 +201,46 @@ impl<T: Value> std::ops::Div<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value> std::ops::DivAssign<T> for Matrix::<T> {
+impl<T: Value<T>> std::ops::DivAssign<T> for Matrix::<T> {
 	fn div_assign(&mut self, n: T) {
 		self.divide_val(&n);
 	}
 }
 
-struct Vector<T: Value> {
+struct Vector<T: Value<T>> {
 	size: usize,
 	data: Vec<T>,
+}
+
+impl<T: Value<T>> Vector::<T> {
+	pub fn get_size(&self) -> usize {
+		self.size
+	}
+
+	pub fn length_squared(&self) -> T {
+		let mut n = T::default();
+
+		for i in 0..self.size {
+			let v = self.data[i];
+			n += v * v;
+		}
+		n
+	}
+
+	// TODO
+	/*pub fn length(&self) -> T {
+		self.length_squared().sqrt()
+	}*/
+
+	pub fn dot(&self, other: &Vector<T>) -> T {
+		let mut n = T::default();
+
+		// TODO Check other's size
+		for i in 0..self.size {
+			n += self.data[i] * other.data[i];
+		}
+		n
+	}
+
+	// TODO Cross product
 }
