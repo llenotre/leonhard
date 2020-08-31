@@ -20,6 +20,7 @@ struct Matrix<T: Value<T>> {
 	height: usize,
 	width: usize,
 	data: Vec<T>,
+	transposed: bool,
 }
 
 impl<T: Value<T>> Matrix::<T> {
@@ -29,51 +30,86 @@ impl<T: Value<T>> Matrix::<T> {
 			height: height,
 			width: width,
 			data: Vec::with_capacity(height * width),
+			transposed: false,
 		};
 		mat.data.resize(height * width, T::default());
 		mat
 	}
 
 	pub fn get_height(&self) -> usize {
-		self.height
+		if self.transposed {
+			self.width
+		} else {
+			self.height
+		}
 	}
 
 	pub fn get_width(&self) -> usize {
-		self.width
+		if self.transposed {
+			self.height
+		} else {
+			self.width
+		}
 	}
 
 	pub fn is_square(&self) -> bool {
 		self.height == self.width
 	}
 
+	pub fn is_transposed(&self) -> bool {
+		self.transposed
+	}
+
 	pub fn get(&self, y: usize, x: usize) -> &T {
-		&self.data[y * self.width + x]
+		if self.transposed {
+			&self.data[x * self.height + y]
+		} else {
+			&self.data[y * self.width + x]
+		}
 	}
 
 	pub fn get_mut(&mut self, y: usize, x: usize) -> &mut T {
-		&mut self.data[y * self.width + x]
+		if self.transposed {
+			&mut self.data[x * self.height + y]
+		} else {
+			&mut self.data[y * self.width + x]
+		}
 	}
 
 	/*pub fn submatrix(&self, y: usize, x: usize, height: usize, width: usize) -> Self {
 		// TODO
+	}*/
+
+	pub fn transpose(&mut self) -> &mut Self {
+		self.transposed = !self.transposed;
+		self
 	}
 
-	pub fn transpose(&self) -> Self {
+	pub fn to_row_echelon(&mut self) -> &mut Self {
 		// TODO
-	}
-
-	pub fn inverse(&self) -> Self {
-		// TODO
+		self
 	}
 
 	pub fn determinant(&self) -> T {
 		// TODO
-	}*/
+		T::default()
+	}
+
+	pub fn is_invertible() -> bool {
+		// TODO
+		true
+	}
+
+	pub fn inverse(&mut self) -> &mut Self {
+		// TODO
+		self
+	}
 
 	pub fn trace(&self) -> T {
+		let max = min(self.get_height(), self.get_width());
 		let mut n = T::default();
 
-		for i in 0..min(self.height, self.width) {
+		for i in 0..max {
 			n += *self.get(i, i);
 		}
 		n

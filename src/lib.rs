@@ -1,9 +1,11 @@
 #![allow(dead_code)]
 
+mod complex;
 mod linear_algebra;
 mod polynomial;
 
 trait Value<T>: Default + Copy
+	+ std::ops::Neg<Output = T>
 	+ std::ops::Add<Output = T>
 	+ std::ops::AddAssign
 	+ std::ops::Sub<Output = T>
