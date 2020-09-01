@@ -1,0 +1,6 @@
+- Matrix/vector printing
+- Matrix/vector build from values array
+- Vector operators overloading
+- Matrix inverse
+- Matrix rank
+- Matrix composition

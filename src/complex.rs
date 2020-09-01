@@ -8,9 +8,19 @@ struct Complex<T>
 }
 
 impl<T: Field<T>> Complex::<T> {
-	pub fn conjugate(&mut self) -> &mut Self {
-		self.y = -self.y;
-		self
+	pub fn conjugate(&self) -> Self {
+		let mut c = self.clone();
+		c.y = -c.y;
+		c
+	}
+
+	pub fn modulus(&self) -> T {
+		(self.x * self.x + self.y * self.y).sqrt()
+	}
+
+	pub fn argument(&self) -> T {
+		// TODO
+		T::additive_identity()
 	}
 }
 

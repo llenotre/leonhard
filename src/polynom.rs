@@ -2,7 +2,7 @@ use crate::Field;
 
 fn compute<T: Field<T>>(c: Vec<T>, x: T) -> T {
 	if c.len() == 0 {
-		return T::default();
+		return T::additive_identity();
 	}
 
 	let mut x_ = x;

@@ -81,7 +81,7 @@ impl<T: Field<T>> Matrix::<T> {
 		if self.transposed {
 			&self.data[x * self.height + y]
 		} else {
-			&self.data[y * self.width + x]
+			&self.data[y * self.height + x]
 		}
 	}
 
@@ -89,37 +89,105 @@ impl<T: Field<T>> Matrix::<T> {
 		if self.transposed {
 			&mut self.data[x * self.height + y]
 		} else {
-			&mut self.data[y * self.width + x]
+			&mut self.data[y * self.height + x]
 		}
 	}
 
-	/*pub fn submatrix(&self, y: usize, x: usize, height: usize, width: usize) -> Self {
-		// TODO
-	}*/
+	pub fn submatrix(&self, y: usize, x: usize, height: usize, width: usize) -> Self {
+		// TODO Check that arguments are in range
+
+		let mut m = Self::new(height, width);
+		for i in 0..height {
+			for j in 0..width {
+				*m.get_mut(i, j) = *m.get(y + i, x + j);
+			}
+		}
+		m
+	}
 
 	pub fn transpose(&mut self) -> &mut Self {
 		self.transposed = !self.transposed;
 		self
 	}
 
-	pub fn to_row_echelon(&mut self) -> &mut Self {
-		// TODO
-		self
+	fn rows_swap(&mut self, i: usize, j: usize) {
+		// TODO Check arguments
+		for k in 0..self.get_width() {
+			let tmp = *self.get(i, k);
+			*self.get_mut(i, k) = *self.get(j, k);
+			*self.get_mut(j, k) = tmp;
+		}
+	}
+
+	fn to_row_echelon_(&mut self, d: &mut T) {
+		let mut i = 0;
+		let mut j = 0;
+
+		while i < self.get_height() && j < self.get_width() {
+			let i_max = {
+				let mut max = i;
+
+				for k in i..self.get_height() {
+					if *self.get(k, j) > *self.get(max, j) {
+						max = k;
+					}
+				}
+				max
+			};
+
+			if *self.get(i_max, j) == T::additive_identity() {
+				j += 1;
+				continue;
+			}
+
+			self.rows_swap(i, i_max);
+			if i != i_max {
+				*d = -*d;
+			}
+
+			for y in (i + 1)..self.get_height() {
+				let f = *self.get(y, j) / *self.get(i, j);
+				*self.get_mut(y, j) = T::additive_identity();
+				for x in (j + 1)..self.get_width() {
+					let val = *self.get(i, x);
+					*self.get_mut(y, x) -= val * f;
+				}
+			}
+
+			i += 1;
+			j += 1;
+		}
+	}
+
+	pub fn to_row_echelon(&mut self) {
+		let mut d = T::multiplicative_identity();
+		self.to_row_echelon_(&mut d);
 	}
 
 	pub fn determinant(&self) -> T {
-		// TODO
-		T::additive_identity()
+		let mut d = T::multiplicative_identity();
+		let mut n = T::multiplicative_identity();
+		let mut mat = self.clone();
+		mat.to_row_echelon_(&mut d);
+
+		for i in 0..min(mat.get_height(), mat.get_width()) {
+			n *= *mat.get(i, i);
+		}
+		n / d
 	}
 
-	pub fn is_invertible() -> bool {
-		// TODO
-		true
+	pub fn is_invertible(&self) -> bool {
+		self.determinant() != T::additive_identity()
 	}
 
 	pub fn inverse(&mut self) -> &mut Self {
 		// TODO
 		self
+	}
+
+	pub fn rank(&self) -> usize {
+		// TODO
+		0
 	}
 
 	pub fn trace(&self) -> T {
