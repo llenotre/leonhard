@@ -2,6 +2,8 @@ use std::cmp::min;
 use crate::Value;
 
 trait Tensor<T: Value<T>> {
+	fn negate(&mut self);
+
 	fn add_val(&mut self, n: &T);
 	fn add_self(&mut self, n: &Self);
 
@@ -21,6 +23,12 @@ struct Matrix<T: Value<T>> {
 	width: usize,
 	data: Vec<T>,
 	transposed: bool,
+}
+
+#[derive(Clone)]
+struct Vector<T: Value<T>> {
+	size: usize,
+	data: Vec<T>,
 }
 
 impl<T: Value<T>> Matrix::<T> {
@@ -117,6 +125,12 @@ impl<T: Value<T>> Matrix::<T> {
 }
 
 impl<T: Value<T>> Tensor::<T> for Matrix::<T> {
+	fn negate(&mut self) {
+		for i in &mut self.data {
+			*i = -*i;
+		}
+	}
+
 	fn add_val(&mut self, n: &T) {
 		for i in &mut self.data {
 			*i += *n;
@@ -170,10 +184,20 @@ impl<T: Value<T>> Tensor::<T> for Matrix::<T> {
 	}
 }
 
+impl<T: Value<T>> std::ops::Neg for Matrix::<T> {
+	type Output = Matrix::<T>;
+
+	fn neg(self) -> Self::Output {
+		let mut m = self.clone();
+		m.negate();
+		m
+	}
+}
+
 impl<T: Value<T>> std::ops::Add<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
-	fn add(self, n: T) -> Matrix::<T> {
+	fn add(self, n: T) -> Self::Output {
 		let mut m = self.clone();
 		m.add_val(&n);
 		m
@@ -189,7 +213,7 @@ impl<T: Value<T>> std::ops::AddAssign<T> for Matrix::<T> {
 impl<T: Value<T>> std::ops::Sub<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
-	fn sub(self, n: T) -> Matrix::<T> {
+	fn sub(self, n: T) -> Self::Output {
 		let mut m = self.clone();
 		m.subtract_val(&n);
 		m
@@ -205,10 +229,28 @@ impl<T: Value<T>> std::ops::SubAssign<T> for Matrix::<T> {
 impl<T: Value<T>> std::ops::Mul<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
-	fn mul(self, n: T) -> Matrix::<T> {
+	fn mul(self, n: T) -> Self::Output {
 		let mut m = self.clone();
 		m.multiply_val(&n);
 		m
+	}
+}
+
+// TODO Multiplication of a matrix by another
+
+impl<T: Value<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
+	type Output = Vector::<T>;
+
+	fn mul(self, n: Vector::<T>) -> Self::Output {
+		// TODO Check that matrix width == vector size
+
+		let mut vec = Vector::<T>::new(self.height);
+		for i in 0..vec.get_size() {
+			for j in 0..self.get_width() {
+				*vec.get_mut(i) += *self.get(i, j) * *n.get(j);
+			}
+		}
+		vec
 	}
 }
 
@@ -221,7 +263,7 @@ impl<T: Value<T>> std::ops::MulAssign<T> for Matrix::<T> {
 impl<T: Value<T>> std::ops::Div<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
-	fn div(self, n: T) -> Matrix::<T> {
+	fn div(self, n: T) -> Self::Output {
 		let mut m = self.clone();
 		m.divide_val(&n);
 		m
@@ -234,14 +276,26 @@ impl<T: Value<T>> std::ops::DivAssign<T> for Matrix::<T> {
 	}
 }
 
-struct Vector<T: Value<T>> {
-	size: usize,
-	data: Vec<T>,
-}
-
 impl<T: Value<T>> Vector::<T> {
+	pub fn new(size: usize) -> Self {
+		let mut v = Self {
+			size: size,
+			data: Vec::with_capacity(size),
+		};
+		v.data.resize(size, T::default());
+		v
+	}
+
 	pub fn get_size(&self) -> usize {
 		self.size
+	}
+
+	pub fn get(&self, i: usize) -> &T {
+		&self.data[i]
+	}
+
+	pub fn get_mut(&mut self, i: usize) -> &mut T {
+		&mut self.data[i]
 	}
 
 	pub fn length_squared(&self) -> T {
