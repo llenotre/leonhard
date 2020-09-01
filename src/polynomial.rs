@@ -1,6 +1,6 @@
-use crate::Value;
+use crate::Field;
 
-fn compute<T: Value<T>>(c: Vec<T>, x: T) -> T {
+fn compute<T: Field<T>>(c: Vec<T>, x: T) -> T {
 	if c.len() == 0 {
 		return T::default();
 	}

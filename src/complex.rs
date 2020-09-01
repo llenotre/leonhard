@@ -1,4 +1,4 @@
-use crate::Value;
+use crate::Field;
 
 #[derive(Clone)]
 struct Complex<T>
@@ -7,14 +7,14 @@ struct Complex<T>
 	y: T,
 }
 
-impl<T: Value<T>> Complex::<T> {
+impl<T: Field<T>> Complex::<T> {
 	pub fn conjugate(&mut self) -> &mut Self {
 		self.y = -self.y;
 		self
 	}
 }
 
-impl<T: Value<T>> std::ops::Neg for Complex::<T> {
+impl<T: Field<T>> std::ops::Neg for Complex::<T> {
 	type Output = Complex::<T>;
 
 	fn neg(self) -> Self::Output {
@@ -25,7 +25,7 @@ impl<T: Value<T>> std::ops::Neg for Complex::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::Add<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::Add<Complex::<T>> for Complex::<T> {
 	type Output = Complex::<T>;
 
 	fn add(self, n: Complex::<T>) -> Self::Output {
@@ -36,14 +36,14 @@ impl<T: Value<T>> std::ops::Add<Complex::<T>> for Complex::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::AddAssign<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::AddAssign<Complex::<T>> for Complex::<T> {
 	fn add_assign(&mut self, n: Complex::<T>) {
 		self.x += n.x;
 		self.y += n.y;
 	}
 }
 
-impl<T: Value<T>> std::ops::Sub<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::Sub<Complex::<T>> for Complex::<T> {
 	type Output = Complex::<T>;
 
 	fn sub(self, n: Complex::<T>) -> Self::Output {
@@ -54,14 +54,14 @@ impl<T: Value<T>> std::ops::Sub<Complex::<T>> for Complex::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::SubAssign<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::SubAssign<Complex::<T>> for Complex::<T> {
 	fn sub_assign(&mut self, n: Complex::<T>) {
 		self.x -= n.x;
 		self.y -= n.y;
 	}
 }
 
-impl<T: Value<T>> std::ops::Mul<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::Mul<Complex::<T>> for Complex::<T> {
 	type Output = Complex::<T>;
 
 	fn mul(self, n: Complex::<T>) -> Self::Output {
@@ -73,7 +73,7 @@ impl<T: Value<T>> std::ops::Mul<Complex::<T>> for Complex::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::MulAssign<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::MulAssign<Complex::<T>> for Complex::<T> {
 	fn mul_assign(&mut self, n: Complex::<T>) {
 		let x = self.x;
 		self.x = x * n.x - self.y * n.y;
@@ -81,7 +81,7 @@ impl<T: Value<T>> std::ops::MulAssign<Complex::<T>> for Complex::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::Div<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::Div<Complex::<T>> for Complex::<T> {
 	type Output = Complex::<T>;
 
 	fn div(self, n: Complex::<T>) -> Self::Output {
@@ -94,7 +94,7 @@ impl<T: Value<T>> std::ops::Div<Complex::<T>> for Complex::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::DivAssign<Complex::<T>> for Complex::<T> {
+impl<T: Field<T>> std::ops::DivAssign<Complex::<T>> for Complex::<T> {
 	fn div_assign(&mut self, n: Complex::<T>) {
 		let div = n.x * n.x + n.y * n.y;
 		let x = self.x;

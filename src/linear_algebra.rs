@@ -1,7 +1,7 @@
 use std::cmp::min;
-use crate::Value;
+use crate::Field;
 
-trait Tensor<T: Value<T>> {
+pub trait Tensor<T: Field<T>> {
 	fn negate(&mut self);
 
 	fn add_val(&mut self, n: &T);
@@ -18,7 +18,7 @@ trait Tensor<T: Value<T>> {
 }
 
 #[derive(Clone)]
-struct Matrix<T: Value<T>> {
+pub struct Matrix<T: Field<T>> {
 	height: usize,
 	width: usize,
 	data: Vec<T>,
@@ -26,12 +26,12 @@ struct Matrix<T: Value<T>> {
 }
 
 #[derive(Clone)]
-struct Vector<T: Value<T>> {
+pub struct Vector<T: Field<T>> {
 	size: usize,
 	data: Vec<T>,
 }
 
-impl<T: Value<T>> Matrix::<T> {
+impl<T: Field<T>> Matrix::<T> {
 	pub fn new(height: usize, width: usize) -> Self {
 		// TODO Check that `width` and `height` are not `0`
 		let mut mat = Self {
@@ -40,7 +40,16 @@ impl<T: Value<T>> Matrix::<T> {
 			data: Vec::with_capacity(height * width),
 			transposed: false,
 		};
-		mat.data.resize(height * width, T::default());
+		mat.data.resize(height * width, T::additive_identity());
+		mat
+	}
+
+	pub fn identity(size: usize) -> Matrix::<T> {
+		let mut mat = Self::new(size, size);
+
+		for i in 0..size {
+			*mat.get_mut(i, i) = T::multiplicative_identity();
+		}
 		mat
 	}
 
@@ -100,7 +109,7 @@ impl<T: Value<T>> Matrix::<T> {
 
 	pub fn determinant(&self) -> T {
 		// TODO
-		T::default()
+		T::additive_identity()
 	}
 
 	pub fn is_invertible() -> bool {
@@ -115,7 +124,7 @@ impl<T: Value<T>> Matrix::<T> {
 
 	pub fn trace(&self) -> T {
 		let max = min(self.get_height(), self.get_width());
-		let mut n = T::default();
+		let mut n = T::additive_identity();
 
 		for i in 0..max {
 			n += *self.get(i, i);
@@ -124,7 +133,7 @@ impl<T: Value<T>> Matrix::<T> {
 	}
 }
 
-impl<T: Value<T>> Tensor::<T> for Matrix::<T> {
+impl<T: Field<T>> Tensor::<T> for Matrix::<T> {
 	fn negate(&mut self) {
 		for i in &mut self.data {
 			*i = -*i;
@@ -184,7 +193,7 @@ impl<T: Value<T>> Tensor::<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::Neg for Matrix::<T> {
+impl<T: Field<T>> std::ops::Neg for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn neg(self) -> Self::Output {
@@ -194,7 +203,7 @@ impl<T: Value<T>> std::ops::Neg for Matrix::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::Add<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::Add<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn add(self, n: T) -> Self::Output {
@@ -204,13 +213,13 @@ impl<T: Value<T>> std::ops::Add<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::AddAssign<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::AddAssign<T> for Matrix::<T> {
 	fn add_assign(&mut self, n: T) {
 		self.add_val(&n);
 	}
 }
 
-impl<T: Value<T>> std::ops::Sub<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::Sub<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn sub(self, n: T) -> Self::Output {
@@ -220,13 +229,13 @@ impl<T: Value<T>> std::ops::Sub<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::SubAssign<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::SubAssign<T> for Matrix::<T> {
 	fn sub_assign(&mut self, n: T) {
 		self.subtract_val(&n);
 	}
 }
 
-impl<T: Value<T>> std::ops::Mul<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::Mul<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn mul(self, n: T) -> Self::Output {
@@ -238,7 +247,7 @@ impl<T: Value<T>> std::ops::Mul<T> for Matrix::<T> {
 
 // TODO Multiplication of a matrix by another
 
-impl<T: Value<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
+impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
 	type Output = Vector::<T>;
 
 	fn mul(self, n: Vector::<T>) -> Self::Output {
@@ -254,13 +263,13 @@ impl<T: Value<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::MulAssign<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::MulAssign<T> for Matrix::<T> {
 	fn mul_assign(&mut self, n: T) {
 		self.multiply_val(&n);
 	}
 }
 
-impl<T: Value<T>> std::ops::Div<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::Div<T> for Matrix::<T> {
 	type Output = Matrix::<T>;
 
 	fn div(self, n: T) -> Self::Output {
@@ -270,19 +279,19 @@ impl<T: Value<T>> std::ops::Div<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Value<T>> std::ops::DivAssign<T> for Matrix::<T> {
+impl<T: Field<T>> std::ops::DivAssign<T> for Matrix::<T> {
 	fn div_assign(&mut self, n: T) {
 		self.divide_val(&n);
 	}
 }
 
-impl<T: Value<T>> Vector::<T> {
+impl<T: Field<T>> Vector::<T> {
 	pub fn new(size: usize) -> Self {
 		let mut v = Self {
 			size: size,
 			data: Vec::with_capacity(size),
 		};
-		v.data.resize(size, T::default());
+		v.data.resize(size, T::additive_identity());
 		v
 	}
 
@@ -299,7 +308,7 @@ impl<T: Value<T>> Vector::<T> {
 	}
 
 	pub fn length_squared(&self) -> T {
-		let mut n = T::default();
+		let mut n = T::additive_identity();
 
 		for i in 0..self.size {
 			let v = self.data[i];
@@ -308,13 +317,20 @@ impl<T: Value<T>> Vector::<T> {
 		n
 	}
 
-	// TODO
-	/*pub fn length(&self) -> T {
+	pub fn length(&self) -> T {
 		self.length_squared().sqrt()
-	}*/
+	}
+
+	pub fn normalize(&mut self) {
+		let len = self.length();
+
+		for i in 0..self.size {
+			self.data[i] /= len;
+		}
+	}
 
 	pub fn dot(&self, other: &Vector<T>) -> T {
-		let mut n = T::default();
+		let mut n = T::additive_identity();
 
 		// TODO Check other's size
 		for i in 0..self.size {
