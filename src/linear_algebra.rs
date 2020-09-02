@@ -361,7 +361,8 @@ impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
 		let mut vec = Vector::<T>::new(self.height);
 		for i in 0..vec.get_size() {
 			for j in 0..self.get_width() {
-				*vec.get_mut(i) += *self.get(i, j) * *n.get(j);
+				let v = vec.get_mut(i);
+				*v = (*self.get(i, j)).mul_add(n.get(j), v);
 			}
 		}
 		vec
@@ -427,7 +428,7 @@ impl<T: Field<T>> Vector::<T> {
 
 		for i in 0..self.size {
 			let v = self.data[i];
-			n += v * v;
+			n = v.mul_add(&v, &n);
 		}
 		n
 	}
@@ -449,7 +450,7 @@ impl<T: Field<T>> Vector::<T> {
 
 		// TODO Check other's size
 		for i in 0..self.size {
-			n += self.data[i] * other.data[i];
+			n = self.data[i].mul_add(&other.data[i], &n);
 		}
 		n
 	}

@@ -19,6 +19,8 @@ pub trait Field<T>: Copy
 	fn additive_identity() -> T;
 	fn multiplicative_identity() -> T;
 
+	fn mul_add(&self, a: &T, b: &T) -> T;
+
 	fn sqrt(&self) -> T;
 }
 
@@ -31,6 +33,10 @@ macro_rules! primitive_field {
 
 			fn multiplicative_identity() -> $type {
 				1 as $type
+			}
+
+			fn mul_add(&self, a: &$type, b: &$type) -> $type {
+				f64::mul_add(*self as f64, *a as f64, *b as f64) as $type
 			}
 
 			fn sqrt(&self) -> $type {
