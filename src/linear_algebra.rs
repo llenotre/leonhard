@@ -44,6 +44,17 @@ impl<T: Field<T>> Matrix::<T> {
 		mat
 	}
 
+	pub fn from_vec(height: usize, width: usize, values: Vec::<T>) -> Self {
+		// TODO Check that `width` and `height` are not `0` and that `values`'s length corresponds
+		let mat = Self {
+			height: height,
+			width: width,
+			data: values,
+			transposed: false,
+		};
+		mat
+	}
+
 	pub fn identity(size: usize) -> Matrix::<T> {
 		let mut mat = Self::new(size, size);
 
@@ -54,7 +65,7 @@ impl<T: Field<T>> Matrix::<T> {
 	}
 
 	pub fn get_height(&self) -> usize {
-		if self.transposed {
+		if self.is_transposed() {
 			self.width
 		} else {
 			self.height
@@ -62,7 +73,7 @@ impl<T: Field<T>> Matrix::<T> {
 	}
 
 	pub fn get_width(&self) -> usize {
-		if self.transposed {
+		if self.is_transposed() {
 			self.height
 		} else {
 			self.width
@@ -79,17 +90,17 @@ impl<T: Field<T>> Matrix::<T> {
 
 	pub fn get(&self, y: usize, x: usize) -> &T {
 		if self.transposed {
-			&self.data[x * self.height + y]
+			&self.data[x * self.width + y]
 		} else {
-			&self.data[y * self.height + x]
+			&self.data[y * self.width + x]
 		}
 	}
 
 	pub fn get_mut(&mut self, y: usize, x: usize) -> &mut T {
 		if self.transposed {
-			&mut self.data[x * self.height + y]
+			&mut self.data[x * self.width + y]
 		} else {
-			&mut self.data[y * self.height + x]
+			&mut self.data[y * self.width + x]
 		}
 	}
 
@@ -180,14 +191,40 @@ impl<T: Field<T>> Matrix::<T> {
 		self.determinant() != T::additive_identity()
 	}
 
-	pub fn inverse(&mut self) -> &mut Self {
-		// TODO
-		self
+	pub fn get_inverse(&self) -> Self {
+		let mut m = Self::new(self.get_height(), self.get_width() * 2);
+		for i in 0..self.get_height() {
+			for j in 0..self.get_width() {
+				*m.get_mut(i, j) = *self.get(i, j);
+			}
+		}
+		for i in 0..self.get_height() {
+			*m.get_mut(i, self.get_width() + i) = *self.get(i, i);
+		}
+
+		m.to_row_echelon();
+		m.submatrix(0, self.get_width(), self.get_height(), self.get_width())
 	}
 
 	pub fn rank(&self) -> usize {
-		// TODO
-		0
+		let mut m = self.clone();
+		m.to_row_echelon();
+
+		let mut n: usize = 0;
+		for i in 0..m.get_height() {
+			let mut r = false;
+			for j in 0..m.get_width() {
+				if *m.get(i, j) != T::additive_identity() {
+					r = true;
+					break;
+				}
+			}
+
+			if r {
+				n += 1;
+			}
+		}
+		n
 	}
 
 	pub fn trace(&self) -> T {
@@ -363,6 +400,14 @@ impl<T: Field<T>> Vector::<T> {
 		v
 	}
 
+	pub fn from_vec(values: Vec::<T>) -> Self {
+		let v = Self {
+			size: values.len(),
+			data: values,
+		};
+		v
+	}
+
 	pub fn get_size(&self) -> usize {
 		self.size
 	}
@@ -374,6 +419,8 @@ impl<T: Field<T>> Vector::<T> {
 	pub fn get_mut(&mut self, i: usize) -> &mut T {
 		&mut self.data[i]
 	}
+
+	// TODO to_matrix
 
 	pub fn length_squared(&self) -> T {
 		let mut n = T::additive_identity();

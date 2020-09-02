@@ -115,14 +115,21 @@ mod tests {
 
 	#[test]
 	fn test_mat_transpose() {
-		let mut mat = linear_algebra::Matrix::<f64>::new(4, 3);
+		let mut mat = linear_algebra::Matrix::<f64>::from_vec(4, 3, vec!{
+			1., 0., 0.,
+			2., 0., 3.,
+			0., 0., 0.,
+			0., 0., 0.,
+		});
 
 		assert!(!mat.is_transposed());
 		assert!(mat.get_height() == 4);
 		assert!(mat.get_width() == 3);
-		*mat.get_mut(0, 0) = 1.;
-		*mat.get_mut(1, 0) = 2.;
-		*mat.get_mut(1, 2) = 3.;
+		assert_eq!(*mat.get(0, 0), 1.);
+		assert_eq!(*mat.get(1, 0), 2.);
+		assert_eq!(*mat.get(1, 2), 3.);
+		assert_eq!(*mat.get(0, 1), 0.);
+		assert_eq!(*mat.get(2, 1), 0.);
 
 		mat.transpose();
 
@@ -162,16 +169,11 @@ mod tests {
 
 	#[test]
 	fn test_mat_row_echelon2() {
-		let mut mat = linear_algebra::Matrix::<f64>::new(3, 3);
-		*mat.get_mut(0, 0) = 0.;
-		*mat.get_mut(0, 1) = 1.;
-		*mat.get_mut(0, 2) = 2.;
-		*mat.get_mut(1, 0) = 3.;
-		*mat.get_mut(1, 1) = 4.;
-		*mat.get_mut(1, 2) = 5.;
-		*mat.get_mut(2, 0) = 6.;
-		*mat.get_mut(2, 1) = 7.;
-		*mat.get_mut(2, 2) = 8.;
+		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			0., 1., 2.,
+			3., 4., 5.,
+			6., 7., 8.,
+		});
 
 		mat.to_row_echelon();
 
@@ -194,34 +196,28 @@ mod tests {
 
 	#[test]
 	fn test_mat_determinant1() {
-		let mut mat = linear_algebra::Matrix::<f64>::new(3, 3);
+		let mat = linear_algebra::Matrix::<f64>::identity(3);
+		assert_eq!(mat.determinant(), 1 as f64);
+	}
 
-		*mat.get_mut(0, 0) = -2.;
-		*mat.get_mut(0, 1) = 2.;
-		*mat.get_mut(0, 2) = -3.;
-		*mat.get_mut(1, 0) = -1.;
-		*mat.get_mut(1, 1) = 1.;
-		*mat.get_mut(1, 2) = 3.;
-		*mat.get_mut(2, 0) = 2.;
-		*mat.get_mut(2, 1) = 0.;
-		*mat.get_mut(2, 2) = -1.;
+	#[test]
+	fn test_mat_determinant2() {
+		let mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			-2., 2., -3.,
+			-1., 1., 3.,
+			2., 0., -1.,
+		});
 
 		assert_eq!(mat.determinant(), 18 as f64);
 	}
 
 	#[test]
-	fn test_mat_determinant2() {
-		let mut mat = linear_algebra::Matrix::<f64>::new(3, 3);
-
-		*mat.get_mut(0, 0) = -2.;
-		*mat.get_mut(0, 1) = 2.;
-		*mat.get_mut(0, 2) = -3.;
-		*mat.get_mut(1, 0) = 0.;
-		*mat.get_mut(1, 1) = 2.;
-		*mat.get_mut(1, 2) = -4.;
-		*mat.get_mut(2, 0) = 0.;
-		*mat.get_mut(2, 1) = 0.;
-		*mat.get_mut(2, 2) = 4.5;
+	fn test_mat_determinant3() {
+		let mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			-2., 2., -3.,
+			0., 2., -4.,
+			0., 0., 4.5,
+		});
 
 		assert_eq!(mat.determinant(), -18 as f64);
 	}
@@ -236,10 +232,32 @@ mod tests {
 		assert_eq!(mat.trace(), 3. as f64);
 	}
 
-	// TODO Vector length squared
-	// TODO Vector length
-	// TODO Vector normalize
-	// TODO Vector dot
+	#[test]
+	fn test_vec_length0() {
+		let vec = linear_algebra::Vector::<f64>::from_vec(vec!{1., 0., 0.});
+		assert_eq!(vec.length(), 1. as f64);
+	}
+
+	#[test]
+	fn test_vec_length1() {
+		let vec = linear_algebra::Vector::<f64>::from_vec(vec!{1., 1., 1.});
+		assert_eq!(vec.length(), (3. as f64).sqrt());
+	}
+
+	#[test]
+	fn test_vec_normalize0() {
+		let mut vec = linear_algebra::Vector::<f64>::from_vec(vec!{1., 1., 1.});
+		vec.normalize();
+		assert_eq!(vec.length(), 1. as f64);
+	}
+
+	#[test]
+	fn test_vec_dot0() {
+		let vec0 = linear_algebra::Vector::<f64>::from_vec(vec!{1., 0., 0.});
+		let vec1 = linear_algebra::Vector::<f64>::from_vec(vec!{0., 1., 0.});
+		assert_eq!(vec0.dot(&vec1), 0. as f64);
+	}
+
 	// TODO Vector cross product
 
 	#[test]
