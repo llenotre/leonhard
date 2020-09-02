@@ -264,7 +264,25 @@ mod tests {
 		assert_eq!(vec0.dot(&vec1), 0. as f64);
 	}
 
-	// TODO Vector cross product
+	#[test]
+	fn test_vec_cross_product0() {
+		let vec0 = linear_algebra::Vector::<f64>::from_vec(vec!{1., 0., 0.});
+		let vec1 = linear_algebra::Vector::<f64>::from_vec(vec!{0., 1., 0.});
+		let vec2 = vec0.cross_product(&vec1);
+		assert_eq!(*vec2.get(0), 0. as f64);
+		assert_eq!(*vec2.get(1), 0. as f64);
+		assert_eq!(*vec2.get(2), 1. as f64);
+	}
+
+	#[test]
+	fn test_vec_cross_product1() {
+		let vec0 = linear_algebra::Vector::<f64>::from_vec(vec!{1., 0.5, 2.});
+		let vec1 = linear_algebra::Vector::<f64>::from_vec(vec!{0.8, 1., 0.});
+		let vec2 = vec0.cross_product(&vec1);
+		assert_eq!(*vec2.get(0), -2. as f64);
+		assert_eq!(*vec2.get(1), 1.6 as f64);
+		assert_eq!(*vec2.get(2), 0.6 as f64);
+	}
 
 	#[test]
 	fn test_poly_compute0() {

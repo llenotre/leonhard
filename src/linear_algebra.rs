@@ -3,7 +3,6 @@ use crate::Field;
 
 pub trait Tensor<T: Field<T>> {
 	fn negate(&mut self);
-
 	fn add_val(&mut self, n: &T);
 	fn add_self(&mut self, n: &Self);
 
@@ -455,5 +454,12 @@ impl<T: Field<T>> Vector::<T> {
 		n
 	}
 
-	// TODO Cross product
+	pub fn cross_product(&self, other: &Vector<T>) -> Self {
+		// TODO Assert that size is `3`
+		Self::from_vec(vec!{
+			(*self.get(1)).mul_add(other.get(2), &-(*self.get(2) * *other.get(1))),
+			(*self.get(2)).mul_add(other.get(0), &-(*self.get(0) * *other.get(2))),
+			(*self.get(0)).mul_add(other.get(1), &-(*self.get(1) * *other.get(0))),
+		})
+	}
 }
