@@ -100,8 +100,89 @@ mod tests {
 		}
 	}
 
-	// TODO Matrix Multiply
-	// TODO Vector transform
+	#[test]
+	fn test_mat_mul_mat0() {
+		let mat0 = linear_algebra::Matrix::<f64>::identity(3);
+		let mat1 = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			0., 1., 2.,
+			3., 4., 5.,
+			6., 7., 8.,
+		});
+		let mat2 = mat0 * mat1;
+
+		assert_eq!(*mat2.get(0, 0), 0. as f64);
+		assert_eq!(*mat2.get(0, 1), 1. as f64);
+		assert_eq!(*mat2.get(0, 2), 2. as f64);
+		assert_eq!(*mat2.get(1, 0), 3. as f64);
+		assert_eq!(*mat2.get(1, 1), 4. as f64);
+		assert_eq!(*mat2.get(1, 2), 5. as f64);
+		assert_eq!(*mat2.get(2, 0), 6. as f64);
+		assert_eq!(*mat2.get(2, 1), 7. as f64);
+		assert_eq!(*mat2.get(2, 2), 8. as f64);
+	}
+
+	#[test]
+	fn test_mat_mul_mat1() {
+		let mat0 = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			0., 1., 2.,
+			3., 4., 5.,
+			6., 7., 8.,
+		});
+		let mat2 = mat0.clone() * mat0;
+
+		assert_eq!(*mat2.get(0, 0), 15. as f64);
+		assert_eq!(*mat2.get(0, 1), 18. as f64);
+		assert_eq!(*mat2.get(0, 2), 21. as f64);
+		assert_eq!(*mat2.get(1, 0), 42. as f64);
+		assert_eq!(*mat2.get(1, 1), 54. as f64);
+		assert_eq!(*mat2.get(1, 2), 66. as f64);
+		assert_eq!(*mat2.get(2, 0), 69. as f64);
+		assert_eq!(*mat2.get(2, 1), 90. as f64);
+		assert_eq!(*mat2.get(2, 2), 111. as f64);
+	}
+
+	#[test]
+	fn test_mat_mul_vec0() {
+		let mat = linear_algebra::Matrix::<f64>::identity(3);
+		let vec0 = linear_algebra::Vector::<f64>::from_vec(vec!{
+			0., 1., 2.,
+		});
+		let vec1 = mat * vec0;
+
+		assert_eq!(*vec1.get(0), 0. as f64);
+		assert_eq!(*vec1.get(1), 1. as f64);
+		assert_eq!(*vec1.get(2), 2. as f64);
+	}
+
+	#[test]
+	fn test_mat_mul_vec1() {
+		let mat = linear_algebra::Matrix::<f64>::identity(3) * 2.;
+		let vec0 = linear_algebra::Vector::<f64>::from_vec(vec!{
+			0., 1., 2.,
+		});
+		let vec1 = mat * vec0;
+
+		assert_eq!(*vec1.get(0), 0. as f64);
+		assert_eq!(*vec1.get(1), 2. as f64);
+		assert_eq!(*vec1.get(2), 4. as f64);
+	}
+
+	#[test]
+	fn test_mat_mul_vec2() {
+		let mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			0., 1., 0.,
+			1., 0., 1.,
+			0., 1., 0.,
+		});
+		let vec0 = linear_algebra::Vector::<f64>::from_vec(vec!{
+			0., 1., 2.,
+		});
+		let vec1 = mat * vec0;
+
+		assert_eq!(*vec1.get(0), 1. as f64);
+		assert_eq!(*vec1.get(1), 2. as f64);
+		assert_eq!(*vec1.get(2), 1. as f64);
+	}
 
 	#[test]
 	fn test_mat_div() {

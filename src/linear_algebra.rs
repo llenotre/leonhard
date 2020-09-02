@@ -349,7 +349,26 @@ impl<T: Field<T>> std::ops::Mul<T> for Matrix::<T> {
 	}
 }
 
-// TODO Multiplication of a matrix by another
+impl<T: Field<T>> std::ops::Mul<Matrix::<T>> for Matrix::<T> {
+	type Output = Matrix::<T>;
+
+	fn mul(self, n: Matrix::<T>) -> Self::Output {
+		// TODO Check that self.width == n.height
+
+		let mut mat = Self::new(self.get_height(), n.get_width());
+		for i in 0..mat.get_height() {
+			for j in 0..mat.get_width() {
+				let mut v = T::additive_identity();
+
+				for k in 0..self.get_width() {
+					v = (*self.get(i, k)).mul_add(n.get(k, j), &v);
+				}
+				*mat.get_mut(i, j) = v;
+			}
+		}
+		mat
+	}
+}
 
 impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
 	type Output = Vector::<T>;
@@ -357,7 +376,7 @@ impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
 	fn mul(self, n: Vector::<T>) -> Self::Output {
 		// TODO Check that matrix width == vector size
 
-		let mut vec = Vector::<T>::new(self.height);
+		let mut vec = Vector::<T>::new(self.get_height());
 		for i in 0..vec.get_size() {
 			for j in 0..self.get_width() {
 				let v = vec.get_mut(i);
