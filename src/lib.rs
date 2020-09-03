@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-mod complex;
-mod linear_algebra;
-mod math;
-mod polynom;
+pub mod complex;
+pub mod linear_algebra;
+pub mod math;
+pub mod polynom;
 
 pub trait Field<T>: Copy
 	+ std::ops::Neg<Output = T>
