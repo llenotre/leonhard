@@ -2,6 +2,7 @@
 
 mod complex;
 mod linear_algebra;
+mod math;
 mod polynom;
 
 pub trait Field<T>: Copy
@@ -52,11 +53,6 @@ primitive_field!(i32);
 primitive_field!(i64);
 primitive_field!(f32);
 primitive_field!(f64);
-
-pub fn lerp<T>(v0: &T, v1: &T, t: f64) -> T
-	where T: Copy + std::ops::Add<Output = T> + std::ops::Mul<f64, Output = T> {
-	*v0 * (1. - t) + *v1 * t
-}
 
 #[cfg(test)]
 mod tests {
@@ -383,5 +379,85 @@ mod tests {
 		assert_eq!(polynom::compute::<f64>(vec!{1., 2., 0., 0.8}, -1.), -1.8 as f64);
 	}
 
-	// TODO Complex
+	#[test]
+	fn test_complex_mul0() {
+		let c = complex::Complex::<f64>::new(&1., &0.) * 2.;
+		assert_eq!(c.x, 2 as f64);
+		assert_eq!(c.y, 0 as f64);
+	}
+
+	#[test]
+	fn test_complex_mul1() {
+		let c = complex::Complex::<f64>::new(&1., &1.) * 2.;
+		assert_eq!(c.x, 2 as f64);
+		assert_eq!(c.y, 2 as f64);
+	}
+
+	#[test]
+	fn test_complex_mul2() {
+		let c0 = complex::Complex::<f64>::new(&1., &1.);
+		let c1 = complex::Complex::<f64>::new(&2., &2.);
+		let c2 = c0 * c1;
+		assert_eq!(c2.x, 0 as f64);
+		assert_eq!(c2.y, 4 as f64);
+	}
+
+	#[test]
+	fn test_complex_div0() {
+		let c = complex::Complex::<f64>::new(&1., &0.) / 2.;
+		assert_eq!(c.x, 0.5 as f64);
+		assert_eq!(c.y, 0 as f64);
+	}
+
+	#[test]
+	fn test_complex_div1() {
+		let c = complex::Complex::<f64>::new(&1., &1.) / 2.;
+		assert_eq!(c.x, 0.5 as f64);
+		assert_eq!(c.y, 0.5 as f64);
+	}
+
+	#[test]
+	fn test_complex_div2() {
+		let c0 = complex::Complex::<f64>::new(&1., &1.);
+		let c1 = complex::Complex::<f64>::new(&2., &2.);
+		let c2 = c0 / c1;
+		assert_eq!(c2.x, 0.5 as f64);
+		assert_eq!(c2.y, 0. as f64);
+	}
+
+	#[test]
+	fn test_lerp0() {
+		assert_eq!(math::lerp::<f64>(10., 15., 0.), 10 as f64);
+		assert_eq!(math::lerp::<f64>(10., 15., 1.), 15 as f64);
+		assert_eq!(math::lerp::<f64>(10., 15., 0.5), 12.5 as f64);
+	}
+
+	#[test]
+	fn test_lerp1() {
+		assert_eq!(math::lerp::<f64>(10., -10., 0.), 10 as f64);
+		assert_eq!(math::lerp::<f64>(10., -10., 1.), -10 as f64);
+		assert_eq!(math::lerp::<f64>(10., -10., 0.5), 0 as f64);
+	}
+
+	#[test]
+	fn test_binomial_coefficient0() {
+		assert_eq!(math::binomial_coefficient(5, 2), 10);
+		assert_eq!(math::binomial_coefficient(50, 2), 1225);
+		assert_eq!(math::binomial_coefficient(8, 4), 70);
+		assert_eq!(math::binomial_coefficient(80, 4), 1581580);
+	}
+
+	#[test]
+	fn test_binomial_coefficient1() {
+		for i in 0..100 {
+			assert_eq!(math::binomial_coefficient(i, i), 1);
+		}
+	}
+
+	#[test]
+	fn test_binomial_coefficient2() {
+		for i in 6..100 {
+			assert_eq!(math::binomial_coefficient(5, i), 0);
+		}
+	}
 }
