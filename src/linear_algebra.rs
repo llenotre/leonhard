@@ -482,3 +482,63 @@ impl<T: Field<T>> Vector::<T> {
 		})
 	}
 }
+
+impl<T: Field<T>> Tensor::<T> for Vector::<T> {
+	fn negate(&mut self) {
+		for i in &mut self.data {
+			*i = -*i;
+		}
+	}
+
+	fn add_val(&mut self, n: &T) {
+		for i in &mut self.data {
+			*i += *n;
+		}
+	}
+
+	fn add_self(&mut self, n: &Self) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
+			self.data[i] += n.data[i];
+		}
+	}
+
+	fn subtract_val(&mut self, n: &T) {
+		for i in &mut self.data {
+			*i -= *n;
+		}
+	}
+
+	fn subtract_self(&mut self, n: &Self) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
+			self.data[i] -= n.data[i];
+		}
+	}
+
+	fn multiply_val(&mut self, n: &T) {
+		for i in &mut self.data {
+			*i *= *n;
+		}
+	}
+
+	fn multiply_self(&mut self, n: &Self) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
+			self.data[i] *= n.data[i];
+		}
+	}
+
+	fn divide_val(&mut self, n: &T) {
+		for i in &mut self.data {
+			*i /= *n;
+		}
+	}
+
+	fn divide_self(&mut self, n: &Self) {
+		// TODO Check other's size
+		for i in 0..self.data.len() {
+			self.data[i] /= n.data[i];
+		}
+	}
+}
