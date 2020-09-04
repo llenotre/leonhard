@@ -542,3 +542,141 @@ impl<T: Field<T>> Tensor::<T> for Vector::<T> {
 		}
 	}
 }
+
+impl<T: Field<T>> std::ops::Neg for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn neg(self) -> Self::Output {
+		let mut v = self.clone();
+		v.negate();
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::Add<T> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn add(self, n: T) -> Self::Output {
+		let mut v = self.clone();
+		v.add_val(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::Add<Vector::<T>> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn add(self, n: Vector::<T>) -> Self::Output {
+		let mut v = self.clone();
+		v.add_self(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::AddAssign<T> for Vector::<T> {
+	fn add_assign(&mut self, n: T) {
+		self.add_val(&n);
+	}
+}
+
+impl<T: Field<T>> std::ops::AddAssign<Vector::<T>> for Vector::<T> {
+	fn add_assign(&mut self, n: Vector::<T>) {
+		self.add_self(&n);
+	}
+}
+
+impl<T: Field<T>> std::ops::Sub<T> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn sub(self, n: T) -> Self::Output {
+		let mut v = self.clone();
+		v.subtract_val(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::Sub<Vector::<T>> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn sub(self, n: Vector::<T>) -> Self::Output {
+		let mut v = self.clone();
+		v.subtract_self(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::SubAssign<T> for Vector::<T> {
+	fn sub_assign(&mut self, n: T) {
+		self.subtract_val(&n);
+	}
+}
+
+impl<T: Field<T>> std::ops::SubAssign<Vector::<T>> for Vector::<T> {
+	fn sub_assign(&mut self, n: Vector::<T>) {
+		self.subtract_self(&n);
+	}
+}
+
+impl<T: Field<T>> std::ops::Mul<T> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn mul(self, n: T) -> Self::Output {
+		let mut v = self.clone();
+		v.multiply_val(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn mul(self, n: Vector::<T>) -> Self::Output {
+		let mut v = self.clone();
+		v.multiply_self(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::MulAssign<T> for Vector::<T> {
+	fn mul_assign(&mut self, n: T) {
+		self.multiply_val(&n);
+	}
+}
+
+impl<T: Field<T>> std::ops::MulAssign<Vector::<T>> for Vector::<T> {
+	fn mul_assign(&mut self, n: Vector::<T>) {
+		self.multiply_self(&n);
+	}
+}
+
+impl<T: Field<T>> std::ops::Div<T> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn div(self, n: T) -> Self::Output {
+		let mut v = self.clone();
+		v.divide_val(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::Div<Vector::<T>> for Vector::<T> {
+	type Output = Vector::<T>;
+
+	fn div(self, n: Vector::<T>) -> Self::Output {
+		let mut v = self.clone();
+		v.divide_self(&n);
+		v
+	}
+}
+
+impl<T: Field<T>> std::ops::DivAssign<T> for Vector::<T> {
+	fn div_assign(&mut self, n: T) {
+		self.divide_val(&n);
+	}
+}
+
+impl<T: Field<T>> std::ops::DivAssign<Vector::<T>> for Vector::<T> {
+	fn div_assign(&mut self, n: Vector::<T>) {
+		self.divide_self(&n);
+	}
+}
