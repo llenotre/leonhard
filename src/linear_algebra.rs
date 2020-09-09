@@ -87,6 +87,10 @@ impl<T: Field<T>> Matrix::<T> {
 		self.transposed
 	}
 
+    pub fn get_data(&self) -> &Vec<T> {
+        &self.data
+    }
+
 	pub fn get(&self, y: usize, x: usize) -> &T {
 		if self.transposed {
 			&self.data[x * self.width + y]
@@ -430,6 +434,10 @@ impl<T: Field<T>> Vector::<T> {
 	pub fn get_size(&self) -> usize {
 		self.size
 	}
+
+    pub fn get_data(&self) -> &Vec<T> {
+        &self.data
+    }
 
 	pub fn get(&self, i: usize) -> &T {
 		&self.data[i]
