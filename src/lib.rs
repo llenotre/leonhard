@@ -330,7 +330,7 @@ mod tests {
 	#[test]
 	fn test_vec_normalize0() {
 		let mut vec = linear_algebra::Vector::<f64>::from_vec(vec!{1., 1., 1.});
-		vec.normalize();
+		vec.normalize(1.);
 		assert_eq!(vec.length(), 1. as f64);
 	}
 
