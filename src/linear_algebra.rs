@@ -87,6 +87,10 @@ impl<T: Field<T>> Matrix::<T> {
 		self.transposed
 	}
 
+    pub fn get_data(&self) -> &Vec<T> {
+        &self.data
+    }
+
 	pub fn get(&self, y: usize, x: usize) -> &T {
 		if self.transposed {
 			&self.data[x * self.width + y]
@@ -504,6 +508,10 @@ impl<T: Field<T>> Vector::<T> {
 		self.size
 	}
 
+    pub fn get_data(&self) -> &Vec<T> {
+        &self.data
+    }
+
 	pub fn get(&self, i: usize) -> &T {
 		&self.data[i]
 	}
@@ -528,12 +536,13 @@ impl<T: Field<T>> Vector::<T> {
 		self.length_squared().sqrt()
 	}
 
-	pub fn normalize(&mut self) {
+	pub fn normalize(&mut self, length: T) -> &mut Self {
 		let len = self.length();
 
 		for i in 0..self.size {
-			self.data[i] /= len;
+			self.data[i] = (self.data[i] * length) / len;
 		}
+        self
 	}
 
 	pub fn dot(&self, other: &Vector<T>) -> T {
@@ -549,9 +558,9 @@ impl<T: Field<T>> Vector::<T> {
 	pub fn cross_product(&self, other: &Vector<T>) -> Self {
 		// TODO Assert that size is `3`
 		Self::from_vec(vec!{
-			(*self.get(1)).mul_add(other.get(2), &-(*self.get(2) * *other.get(1))),
-			(*self.get(2)).mul_add(other.get(0), &-(*self.get(0) * *other.get(2))),
-			(*self.get(0)).mul_add(other.get(1), &-(*self.get(1) * *other.get(0))),
+			self.get(1).mul_add(other.get(2), &-(*self.get(2) * *other.get(1))),
+			self.get(2).mul_add(other.get(0), &-(*self.get(0) * *other.get(2))),
+			self.get(0).mul_add(other.get(1), &-(*self.get(1) * *other.get(0))),
 		})
 	}
 }
