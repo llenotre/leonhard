@@ -5,7 +5,7 @@ pub mod linear_algebra;
 pub mod math;
 pub mod polynom;
 
-pub trait Field<T>: Copy
+pub trait Field<T>: Copy + std::fmt::Display
 	+ std::ops::Neg<Output = T>
 	+ std::ops::Add<Output = T>
 	+ std::ops::AddAssign
@@ -22,7 +22,10 @@ pub trait Field<T>: Copy
 
 	fn mul_add(&self, a: &T, b: &T) -> T;
 
+	fn abs(&self) -> T;
 	fn sqrt(&self) -> T;
+
+	fn epsilon_equal(&self, n: &T) -> bool;
 }
 
 macro_rules! primitive_field {
@@ -40,8 +43,16 @@ macro_rules! primitive_field {
 				f64::mul_add(*self as f64, *a as f64, *b as f64) as $type
 			}
 
+			fn abs(&self) -> $type {
+				(*self as $type).abs()
+			}
+
 			fn sqrt(&self) -> $type {
 				f64::sqrt(*self as f64) as $type
+			}
+
+			fn epsilon_equal(&self, n: &$type) -> bool {
+				(*n as f64).abs() == ((*self as f64) + 0.000001)
 			}
 		}
 	}
@@ -257,9 +268,14 @@ mod tests {
 			3., 4., 5.,
 			6., 7., 8.,
 		});
-
 		mat.to_row_echelon();
 
+		for i in 0..mat.get_height() {
+			for j in 0..mat.get_width() {
+				print!("{} ", *mat.get(i, j));
+			}
+			println!();
+		}
 		assert_eq!(*mat.get(0, 0), 1.);
 		assert_eq!(*mat.get(0, 1), 0.);
 		assert_eq!(*mat.get(0, 2), -1.);
@@ -269,6 +285,36 @@ mod tests {
 		assert_eq!(*mat.get(2, 0), 0.);
 		assert_eq!(*mat.get(2, 1), 0.);
 		assert_eq!(*mat.get(2, 2), 0.);
+	}
+
+	#[test]
+	fn test_mat_row_echelon3() {
+		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			0., 1., 2., 1., 0., 0.,
+			3., 4., 5., 0., 1., 0.,
+			6., 7., 8., 0., 0., 1.,
+		});
+		mat.to_row_echelon();
+
+		assert_eq!(*mat.get(0, 0), 1.);
+		assert_eq!(*mat.get(0, 1), 0.);
+		assert_eq!(*mat.get(0, 2), 0.);
+		assert_eq!(*mat.get(1, 0), 0.);
+		assert_eq!(*mat.get(1, 1), 1.);
+		assert_eq!(*mat.get(1, 2), 0.);
+		assert_eq!(*mat.get(2, 0), 0.);
+		assert_eq!(*mat.get(2, 1), 0.);
+		assert_eq!(*mat.get(2, 2), 1.);
+
+		assert_eq!(*mat.get(0, 3), 0.75);
+		assert_eq!(*mat.get(0, 4), 0.5);
+		assert_eq!(*mat.get(0, 5), 0.25);
+		assert_eq!(*mat.get(1, 3), 0.5);
+		assert_eq!(*mat.get(1, 4), 1.);
+		assert_eq!(*mat.get(1, 5), 0.5);
+		assert_eq!(*mat.get(2, 3), 0.25);
+		assert_eq!(*mat.get(2, 4), 0.5);
+		assert_eq!(*mat.get(2, 5), 0.75);
 	}
 
 	#[test]
@@ -305,7 +351,25 @@ mod tests {
 		assert_eq!(mat.determinant(), -18 as f64);
 	}
 
-	// TODO Inverse
+	#[test]
+	fn test_mat_inverse0() {
+		let mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			2., -1., 0.,
+			-1., 2., -1.,
+			0., -1., 2.,
+		});
+		let inverse = mat.get_inverse();
+		assert_eq!(*inverse.get(0, 0), 0.75);
+		assert_eq!(*inverse.get(0, 1), 0.5);
+		assert_eq!(*inverse.get(0, 2), 0.25);
+		assert_eq!(*inverse.get(1, 0), 0.5);
+		assert_eq!(*inverse.get(1, 1), 1.);
+		assert_eq!(*inverse.get(1, 2), 0.5);
+		assert_eq!(*inverse.get(2, 0), 0.25);
+		assert_eq!(*inverse.get(2, 1), 0.5);
+		assert_eq!(*inverse.get(2, 2), 0.75);
+	}
+
 	// TODO Rank
 
 	#[test]

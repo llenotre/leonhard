@@ -104,12 +104,13 @@ impl<T: Field<T>> Matrix::<T> {
 	}
 
 	pub fn submatrix(&self, y: usize, x: usize, height: usize, width: usize) -> Self {
-		// TODO Check that arguments are in range
+		assert!(y + height <= self.get_height());
+		assert!(x + width <= self.get_width());
 
 		let mut m = Self::new(height, width);
 		for i in 0..height {
 			for j in 0..width {
-				*m.get_mut(i, j) = *m.get(y + i, x + j);
+				*m.get_mut(i, j) = *self.get(y + i, x + j);
 			}
 		}
 		m
@@ -121,7 +122,12 @@ impl<T: Field<T>> Matrix::<T> {
 	}
 
 	fn rows_swap(&mut self, i: usize, j: usize) {
-		// TODO Check arguments
+		assert!(i < self.get_height());
+		assert!(j < self.get_height());
+
+		if i == j {
+			return;
+		}
 		for k in 0..self.get_width() {
 			let tmp = *self.get(i, k);
 			*self.get_mut(i, k) = *self.get(j, k);
@@ -129,16 +135,38 @@ impl<T: Field<T>> Matrix::<T> {
 		}
 	}
 
-	fn to_row_echelon_(&mut self, d: &mut T) {
-		let mut i = 0;
+	fn to_row_echelon_(&mut self, _d: &mut T) {
+		// TODO Wikipedia fr (wip)
+		/*let mut r = 0;
+
+		for j in 0..n {
+			let mut i = r + 1;
+
+			while i < m && *self.get(i, j) == 0 {
+				i += 1;
+
+				if i < m {
+					r += 1;
+
+					self.rows_swap(i, r);
+					scale A[r,j] to a leading 1 (row op 2)
+					for k in 0..m, k != r {
+						make A[k, j] zero (row op 3, employing row r)
+					}
+				}
+			}
+		}*/
+
+		// TODO Wikipedia en
+		/*let mut i = 0;
 		let mut j = 0;
 
 		while i < self.get_height() && j < self.get_width() {
 			let i_max = {
 				let mut max = i;
 
-				for k in i..self.get_height() {
-					if *self.get(k, j) > *self.get(max, j) {
+				for k in (i + 1)..self.get_height() {
+					if self.get(k, j).abs() > self.get(max, j).abs() {
 						max = k;
 					}
 				}
@@ -150,6 +178,7 @@ impl<T: Field<T>> Matrix::<T> {
 				continue;
 			}
 
+			println!("Swap {} and {}", i, i_max);
 			self.rows_swap(i, i_max);
 			if i != i_max {
 				*d = -*d;
@@ -158,6 +187,7 @@ impl<T: Field<T>> Matrix::<T> {
 			for y in (i + 1)..self.get_height() {
 				let f = *self.get(y, j) / *self.get(i, j);
 				*self.get_mut(y, j) = T::additive_identity();
+				println!("Multiply row {} with {}", y, f);
 				for x in (j + 1)..self.get_width() {
 					let val = *self.get(i, x);
 					*self.get_mut(y, x) -= val * f;
@@ -166,6 +196,49 @@ impl<T: Field<T>> Matrix::<T> {
 
 			i += 1;
 			j += 1;
+		}*/
+
+		// TODO mathlib
+		let mut i = 0;
+		let mut r = 0;
+
+		while i < self.get_width() && r < self.get_height() {
+			let max = {
+				let mut max = r;
+
+				for k in (r + 1)..self.get_height() {
+					if self.get(k, i).abs() > self.get(max, i).abs() {
+						max = k;
+					}
+				}
+				max
+			};
+
+			let tmp0 = *self.get(max, i);
+			if tmp0 != T::additive_identity() {
+				for n in 0..self.get_width() {
+					*self.get_mut(max, n) /= tmp0;
+				}
+
+				self.rows_swap(max, r);
+
+				for j in 0..self.get_height() {
+					if j == r {
+						continue;
+					}
+
+					let tmp1 = *self.get(j, i);
+					for n in 0..self.get_width() {
+						let v0 = *self.get(j, n);
+						let v1 = *self.get(r, n);
+						*self.get_mut(j, n) = tmp1.mul_add(&v1, &-v0);
+					}
+				}
+
+				r += 1;
+			}
+
+			i += 1;
 		}
 	}
 
@@ -198,7 +271,7 @@ impl<T: Field<T>> Matrix::<T> {
 			}
 		}
 		for i in 0..self.get_height() {
-			*m.get_mut(i, self.get_width() + i) = *self.get(i, i);
+			*m.get_mut(i, self.get_width() + i) = T::multiplicative_identity();
 		}
 
 		m.to_row_echelon();
