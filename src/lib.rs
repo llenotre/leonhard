@@ -238,6 +238,46 @@ mod tests {
 	}
 
 	#[test]
+	fn test_mat_rows_swap0() {
+		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+            0., 1., 2.,
+            3., 4., 5.,
+            6., 7., 8.,
+        });
+		mat.rows_swap(0, 1);
+
+        assert_eq!(*mat.get(0, 0), 3.);
+        assert_eq!(*mat.get(0, 1), 4.);
+        assert_eq!(*mat.get(0, 2), 5.);
+        assert_eq!(*mat.get(1, 0), 0.);
+        assert_eq!(*mat.get(1, 1), 1.);
+        assert_eq!(*mat.get(1, 2), 2.);
+        assert_eq!(*mat.get(2, 0), 6.);
+        assert_eq!(*mat.get(2, 1), 7.);
+        assert_eq!(*mat.get(2, 2), 8.);
+	}
+
+	#[test]
+	fn test_mat_rows_swap1() {
+		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+            0., 1., 2.,
+            3., 4., 5.,
+            6., 7., 8.,
+        });
+		mat.rows_swap(0, 2);
+
+        assert_eq!(*mat.get(0, 0), 6.);
+        assert_eq!(*mat.get(0, 1), 7.);
+        assert_eq!(*mat.get(0, 2), 8.);
+        assert_eq!(*mat.get(1, 0), 3.);
+        assert_eq!(*mat.get(1, 1), 4.);
+        assert_eq!(*mat.get(1, 2), 5.);
+        assert_eq!(*mat.get(2, 0), 0.);
+        assert_eq!(*mat.get(2, 1), 1.);
+        assert_eq!(*mat.get(2, 2), 2.);
+	}
+
+	#[test]
 	fn test_mat_row_echelon0() {
 		let mut mat = linear_algebra::Matrix::<f64>::new(3, 3);
 		mat.to_row_echelon();
@@ -359,6 +399,7 @@ mod tests {
 			0., -1., 2.,
 		});
 		let inverse = mat.get_inverse();
+
 		assert_eq!(*inverse.get(0, 0), 0.75);
 		assert_eq!(*inverse.get(0, 1), 0.5);
 		assert_eq!(*inverse.get(0, 2), 0.25);
@@ -505,6 +546,11 @@ mod tests {
 
 	#[test]
 	fn test_binomial_coefficient0() {
+		assert_eq!(math::binomial_coefficient(0, 0), 1);
+		assert_eq!(math::binomial_coefficient(0, 1), 0);
+		assert_eq!(math::binomial_coefficient(1, 1), 1);
+		assert_eq!(math::binomial_coefficient(1, 0), 1);
+
 		assert_eq!(math::binomial_coefficient(5, 2), 10);
 		assert_eq!(math::binomial_coefficient(50, 2), 1225);
 		assert_eq!(math::binomial_coefficient(8, 4), 70);
