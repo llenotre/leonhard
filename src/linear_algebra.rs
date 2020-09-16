@@ -140,16 +140,15 @@ impl<T: Field<T>> Matrix::<T> {
     }
 
     fn to_row_echelon_(&mut self, _d: &mut T) {
-        let mut h = 0;
-        let mut k = 0;
+		let mut r = 0;
+		// TODO `d` for determinant computation
 
-        // TODO `d` to compute determinant
-        while h < self.get_height() && k < self.get_width() {
-            let i_max = {
-                let mut max = h;
+		for j in 0..self.get_width() {
+            let k = {
+                let mut max = r;
 
-                for i in (h + 1)..self.get_height() {
-                    if self.get(i, k).abs() > self.get(max, k).abs() {
+                for i in (r + 1)..self.get_height() {
+                    if self.get(i, j).abs() > self.get(max, j).abs() {
                         max = i;
                     }
                 }
@@ -157,25 +156,27 @@ impl<T: Field<T>> Matrix::<T> {
                 max
             };
 
-            if *self.get(i_max, k) == T::additive_identity() {
-                k += 1;
-                continue;
-            }
+			let val = *self.get(k, j);
+			if val != T::additive_identity() {
+				for n in j..self.get_width() {
+					*self.get_mut(k, n) /= val;
+				}
 
-            self.rows_swap(h, i_max);
-            for i in (h + 1)..self.get_height() {
-                let f = *self.get(i, k) / *self.get(h, k);
-                *self.get_mut(i, k) = T::additive_identity();
+				self.rows_swap(k, r);
 
-                for j in (k + 1)..self.get_width() {
-                    let val = *self.get(h, j);
-                    *self.get_mut(i, j) -= val * f;
-                }
-            }
+				for i in 0..self.get_height() {
+					if i != r {
+						let f = *self.get(i, j);
+						for n in 0..self.get_width() {
+							let v = *self.get(r, n);
+							*self.get_mut(i, n) -= v * f;
+						}
+					}
+				}
 
-            h += 1;
-            k += 1;
-        }
+				r += 1;
+			}
+		}
     }
 
     pub fn to_row_echelon(&mut self) {

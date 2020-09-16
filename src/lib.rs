@@ -329,13 +329,19 @@ mod tests {
 
 	#[test]
 	fn test_mat_row_echelon3() {
-		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 6, vec!{
 			0., 1., 2., 1., 0., 0.,
 			3., 4., 5., 0., 1., 0.,
 			6., 7., 8., 0., 0., 1.,
 		});
 		mat.to_row_echelon();
 
+		for i in 0..mat.get_height() {
+			for j in 0..mat.get_width() {
+				print!("{} ", *mat.get(i, j));
+			}
+			println!();
+		}
 		assert_eq!(*mat.get(0, 0), 1.);
 		assert_eq!(*mat.get(0, 1), 0.);
 		assert_eq!(*mat.get(0, 2), 0.);
@@ -546,9 +552,7 @@ mod tests {
 
 	#[test]
 	fn test_binomial_coefficient0() {
-		assert_eq!(math::binomial_coefficient(0, 0), 1);
 		assert_eq!(math::binomial_coefficient(0, 1), 0);
-		assert_eq!(math::binomial_coefficient(1, 1), 1);
 		assert_eq!(math::binomial_coefficient(1, 0), 1);
 
 		assert_eq!(math::binomial_coefficient(5, 2), 10);
@@ -566,8 +570,17 @@ mod tests {
 
 	#[test]
 	fn test_binomial_coefficient2() {
-		for i in 6..100 {
-			assert_eq!(math::binomial_coefficient(5, i), 0);
+		for i in 1..100 {
+			assert_eq!(math::binomial_coefficient(0, i), 0);
+		}
+	}
+
+	#[test]
+	fn test_binomial_coefficient3() {
+		for i in 0..100 {
+			for j in (i + 1)..100 {
+				assert_eq!(math::binomial_coefficient(i, j), 0);
+			}
 		}
 	}
 }
