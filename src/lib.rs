@@ -329,6 +329,26 @@ mod tests {
 
 	#[test]
 	fn test_mat_row_echelon3() {
+		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
+			2., -1., 0.,
+			-1., 2., -1.,
+			0., -1., 2.,
+		});
+		mat.to_row_echelon();
+
+		assert_eq!(*mat.get(0, 0), 1.);
+		assert_eq!(*mat.get(0, 1), 0.);
+		assert_eq!(*mat.get(0, 2), 0.);
+		assert_eq!(*mat.get(1, 0), 0.);
+		assert_eq!(*mat.get(1, 1), 1.);
+		assert_eq!(*mat.get(1, 2), 0.);
+		assert_eq!(*mat.get(2, 0), 0.);
+		assert_eq!(*mat.get(2, 1), 0.);
+		assert_eq!(*mat.get(2, 2), 1.);
+	}
+
+	#[test]
+	fn test_mat_row_echelon4() {
 		let mut mat = linear_algebra::Matrix::<f64>::from_vec(3, 6, vec!{
 			0., 1., 2., 1., 0., 0.,
 			3., 4., 5., 0., 1., 0.,
@@ -399,6 +419,18 @@ mod tests {
 
 	#[test]
 	fn test_mat_inverse0() {
+		let mat = linear_algebra::Matrix::<f64>::identity(3);
+		let inverse = mat.get_inverse();
+
+		for i in 0..inverse.get_height() {
+			for j in 0..inverse.get_width() {
+				assert_eq!(*inverse.get(i, j), if i == j { 1. } else { 0. });
+			}
+		}
+	}
+
+	#[test]
+	fn test_mat_inverse1() {
 		let mat = linear_algebra::Matrix::<f64>::from_vec(3, 3, vec!{
 			2., -1., 0.,
 			-1., 2., -1.,

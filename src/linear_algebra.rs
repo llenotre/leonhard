@@ -139,11 +139,11 @@ impl<T: Field<T>> Matrix::<T> {
         }
     }
 
-    fn to_row_echelon_(&mut self, _d: &mut T) {
+    fn to_row_echelon_(&mut self, d: &mut T) {
+		let mut j = 0;
 		let mut r = 0;
-		// TODO `d` for determinant computation
 
-		for j in 0..self.get_width() {
+		while j < self.get_width() && r < self.get_height() {
             let k = {
                 let mut max = r;
 
@@ -163,6 +163,9 @@ impl<T: Field<T>> Matrix::<T> {
 				}
 
 				self.rows_swap(k, r);
+				if k != r {
+					*d = -*d;
+				}
 
 				for i in 0..self.get_height() {
 					if i != r {
@@ -171,11 +174,13 @@ impl<T: Field<T>> Matrix::<T> {
 							let v = *self.get(r, n);
 							*self.get_mut(i, n) -= v * f;
 						}
+						*self.get_mut(i, j) = T::additive_identity();
 					}
 				}
 
 				r += 1;
 			}
+			j += 1;
 		}
     }
 
