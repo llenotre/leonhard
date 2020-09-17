@@ -1,5 +1,6 @@
-use std::cmp::min;
 use crate::Field;
+use std::cmp::min;
+use std::fmt;
 
 pub trait Tensor<T: Field<T>> {
     fn negate(&mut self);
@@ -424,6 +425,21 @@ impl<T: Field<T>> std::ops::DivAssign<T> for Matrix::<T> {
     }
 }
 
+impl<T: Field<T>> std::fmt::Display for Matrix::<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for i in 0..self.get_height() {
+            for j in 0..self.get_width() {
+                write!(f, "{}", *self.get(i, j));
+                if j < self.get_width() - 1 {
+                    write!(f, " ");
+                }
+            }
+            write!(f, "\n");
+        }
+        write!(f, "")
+    }
+}
+
 impl<T: Field<T>> Vector::<T> {
     pub fn new(size: usize) -> Self {
         let mut v = Self {
@@ -714,5 +730,17 @@ impl<T: Field<T>> std::ops::DivAssign<T> for Vector::<T> {
 impl<T: Field<T>> std::ops::DivAssign<Vector::<T>> for Vector::<T> {
     fn div_assign(&mut self, n: Vector::<T>) {
         self.divide_self(&n);
+    }
+}
+
+impl<T: Field<T>> std::fmt::Display for Vector::<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for i in 0..self.get_size() {
+            write!(f, "{}", *self.get(i));
+            if i < self.get_size() - 1 {
+                write!(f, " ");
+            }
+        }
+        write!(f, "")
     }
 }

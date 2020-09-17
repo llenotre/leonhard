@@ -310,12 +310,7 @@ mod tests {
 		});
 		mat.to_row_echelon();
 
-		for i in 0..mat.get_height() {
-			for j in 0..mat.get_width() {
-				print!("{} ", *mat.get(i, j));
-			}
-			println!();
-		}
+        println!("{}", mat);
 		assert_eq!(*mat.get(0, 0), 1.);
 		assert_eq!(*mat.get(0, 1), 0.);
 		assert_eq!(*mat.get(0, 2), -1.);
@@ -356,12 +351,7 @@ mod tests {
 		});
 		mat.to_row_echelon();
 
-		for i in 0..mat.get_height() {
-			for j in 0..mat.get_width() {
-				print!("{} ", *mat.get(i, j));
-			}
-			println!();
-		}
+        println!("{}", mat);
 		assert_eq!(*mat.get(0, 0), 1.);
 		assert_eq!(*mat.get(0, 1), 0.);
 		assert_eq!(*mat.get(0, 2), 0.);
