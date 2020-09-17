@@ -458,6 +458,22 @@ impl<T: Field<T>> Vector::<T> {
         &mut self.data[i]
     }
 
+    pub fn x(&mut self) -> &mut T {
+        self.get_mut(0)
+    }
+
+    pub fn y(&mut self) -> &mut T {
+        self.get_mut(1)
+    }
+
+    pub fn z(&mut self) -> &mut T {
+        self.get_mut(2)
+    }
+
+    pub fn w(&mut self) -> &mut T {
+        self.get_mut(3)
+    }
+
     // TODO to_matrix
 
     pub fn length_squared(&self) -> T {
