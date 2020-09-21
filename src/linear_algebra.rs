@@ -474,19 +474,35 @@ impl<T: Field<T>> Vector::<T> {
         &mut self.data[i]
     }
 
-    pub fn x(&mut self) -> &mut T {
+    pub fn x(&self) -> &T {
+        self.get(0)
+    }
+
+    pub fn x_mut(&mut self) -> &mut T {
         self.get_mut(0)
     }
 
-    pub fn y(&mut self) -> &mut T {
+    pub fn y(&self) -> &T {
+        self.get(1)
+    }
+
+    pub fn y_mut(&mut self) -> &mut T {
         self.get_mut(1)
     }
 
-    pub fn z(&mut self) -> &mut T {
+    pub fn z(&self) -> &T {
+        self.get(2)
+    }
+
+    pub fn z_mut(&mut self) -> &mut T {
         self.get_mut(2)
     }
 
-    pub fn w(&mut self) -> &mut T {
+    pub fn w(&self) -> &T {
+        self.get(3)
+    }
+
+    pub fn w_mut(&mut self) -> &mut T {
         self.get_mut(3)
     }
 
