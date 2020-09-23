@@ -27,7 +27,6 @@ pub struct Matrix<T: Field<T>> {
 
 #[derive(Clone)]
 pub struct Vector<T: Field<T>> {
-    size: usize,
     data: Vec<T>,
 }
 
@@ -443,7 +442,6 @@ impl<T: Field<T>> std::fmt::Display for Matrix::<T> {
 impl<T: Field<T>> Vector::<T> {
     pub fn new(size: usize) -> Self {
         let mut v = Self {
-            size: size,
             data: Vec::with_capacity(size),
         };
         v.data.resize(size, T::additive_identity());
@@ -452,14 +450,13 @@ impl<T: Field<T>> Vector::<T> {
 
     pub fn from_vec(values: Vec::<T>) -> Self {
         let v = Self {
-            size: values.len(),
             data: values,
         };
         v
     }
 
     pub fn get_size(&self) -> usize {
-        self.size
+        self.data.len()
     }
 
     pub fn get_data(&self) -> &Vec<T> {
@@ -511,7 +508,7 @@ impl<T: Field<T>> Vector::<T> {
     pub fn length_squared(&self) -> T {
         let mut n = T::additive_identity();
 
-        for i in 0..self.size {
+        for i in 0..self.data.len() {
             let v = self.data[i];
             n = v.mul_add(&v, &n);
         }
@@ -525,7 +522,7 @@ impl<T: Field<T>> Vector::<T> {
     pub fn normalize(&mut self, length: T) -> &mut Self {
         let len = self.length();
 
-        for i in 0..self.size {
+        for i in 0..self.data.len() {
             self.data[i] = (self.data[i] * length) / len;
         }
         self
@@ -535,7 +532,7 @@ impl<T: Field<T>> Vector::<T> {
         let mut n = T::additive_identity();
 
         // TODO Check other's size
-        for i in 0..self.size {
+        for i in 0..self.data.len() {
             n = self.data[i].mul_add(&other.data[i], &n);
         }
         n
