@@ -187,3 +187,54 @@ impl<T: Field<T>> std::ops::DivAssign<T> for Complex::<T> {
 		self.y /= n;
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_complex_mul0() {
+		let c = Complex::<f64>::new(&1., &0.) * 2.;
+		assert_eq!(c.x, 2 as f64);
+		assert_eq!(c.y, 0 as f64);
+	}
+
+	#[test]
+	fn test_complex_mul1() {
+		let c = Complex::<f64>::new(&1., &1.) * 2.;
+		assert_eq!(c.x, 2 as f64);
+		assert_eq!(c.y, 2 as f64);
+	}
+
+	#[test]
+	fn test_complex_mul2() {
+		let c0 = Complex::<f64>::new(&1., &1.);
+		let c1 = Complex::<f64>::new(&2., &2.);
+		let c2 = c0 * c1;
+		assert_eq!(c2.x, 0 as f64);
+		assert_eq!(c2.y, 4 as f64);
+	}
+
+	#[test]
+	fn test_complex_div0() {
+		let c = Complex::<f64>::new(&1., &0.) / 2.;
+		assert_eq!(c.x, 0.5 as f64);
+		assert_eq!(c.y, 0 as f64);
+	}
+
+	#[test]
+	fn test_complex_div1() {
+		let c = Complex::<f64>::new(&1., &1.) / 2.;
+		assert_eq!(c.x, 0.5 as f64);
+		assert_eq!(c.y, 0.5 as f64);
+	}
+
+	#[test]
+	fn test_complex_div2() {
+		let c0 = Complex::<f64>::new(&1., &1.);
+		let c1 = Complex::<f64>::new(&2., &2.);
+		let c2 = c0 / c1;
+		assert_eq!(c2.x, 0.5 as f64);
+		assert_eq!(c2.y, 0. as f64);
+	}
+}
