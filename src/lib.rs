@@ -52,7 +52,7 @@ macro_rules! primitive_field {
 			}
 
 			fn epsilon_equal(&self, n: &$type) -> bool {
-				(*n as f64).abs() == ((*self as f64) + 0.000001)
+				((*n as f64) - (*self as f64)).abs() < 0.000001
 			}
 		}
 	}

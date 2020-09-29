@@ -284,21 +284,16 @@ impl<T: Field<T>> Matrix::<T> {
         let mut mat = self.clone();
 		let max = min(mat.get_height(), mat.get_width());
         let mut swaps = Vec::<(usize, usize)>::new();
+		let mut solved = Vec::<bool>::new();
+		solved.resize(mat.get_width() - 1, false);
 
         println!("begin ->\n{}", mat);
 
 		for i in (0..max).rev() {
-			let b = *mat.get(i, mat.get_width() - 1);
-			let mut v = T::additive_identity();
-			for j in i..(mat.get_width() - 1) {
-				v += *mat.get(i, j) * *x.get(j);
-			}
-            println!("row {} sum: {}", i, v);
-
             if *mat.get(i, i) == T::additive_identity() {
                 let mut pivot = 0;
                 for k in i..(mat.get_width() - 1) {
-                    if *mat.get(i, k) != T::additive_identity() {
+                    if *mat.get(i, k) != T::additive_identity() && !solved[k] {
                         pivot = k;
                         break;
                     }
@@ -314,8 +309,16 @@ impl<T: Field<T>> Matrix::<T> {
                 }
             }
 
+			let b = *mat.get(i, mat.get_width() - 1);
+			let mut v = T::additive_identity();
+			for j in i..(mat.get_width() - 1) {
+				v += *mat.get(i, j) * *x.get(j);
+			}
+            println!("row {} sum: {}", i, v);
+
 			*x.get_mut(i) = (b - v) / *mat.get(i, i);
             println!("x{} = {}", i, *x.get_mut(i));
+			solved[i] = true;
 		}
 
         println!("before unswap -> {}", x);
@@ -326,6 +329,7 @@ impl<T: Field<T>> Matrix::<T> {
             *x.get_mut(s1) = n;
         }
         println!("after unswap -> {}", x);
+		// TODO Assert that every field is solved
     }
 
 	pub fn back_substitution(&self) -> Vector::<T> {
@@ -866,6 +870,16 @@ impl<T: Field<T>> std::fmt::Display for Vector::<T> {
     }
 }
 
+macro_rules! assert_eq_delta {
+	($n0:expr, $n1:expr) => {
+		let r = ($n0).epsilon_equal(&($n1));
+		if !r {
+			eprintln!("Delta assert fail: {} != {}", $n0, $n1);
+		}
+		assert!(r);
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -876,7 +890,7 @@ mod tests {
 		mat += 1.;
 		for i in 0..3 {
 			for j in 0..3 {
-				assert_eq!(*mat.get(i, j), 1. as f64);
+				assert_eq_delta!(*mat.get(i, j), 1. as f64);
 			}
 		}
 	}
@@ -887,7 +901,7 @@ mod tests {
 		mat -= 1.;
 		for i in 0..3 {
 			for j in 0..3 {
-				assert_eq!(*mat.get(i, j), -1. as f64);
+				assert_eq_delta!(*mat.get(i, j), -1. as f64);
 			}
 		}
 	}
@@ -903,7 +917,7 @@ mod tests {
 		mat *= 2.;
 		for i in 0..3 {
 			for j in 0..3 {
-				assert_eq!(*mat.get(i, j), (i * 3 + j) as f64 * 2.);
+				assert_eq_delta!(*mat.get(i, j), (i * 3 + j) as f64 * 2.);
 			}
 		}
 	}
@@ -918,15 +932,15 @@ mod tests {
 		});
 		let mat2 = mat0 * mat1;
 
-		assert_eq!(*mat2.get(0, 0), 0. as f64);
-		assert_eq!(*mat2.get(0, 1), 1. as f64);
-		assert_eq!(*mat2.get(0, 2), 2. as f64);
-		assert_eq!(*mat2.get(1, 0), 3. as f64);
-		assert_eq!(*mat2.get(1, 1), 4. as f64);
-		assert_eq!(*mat2.get(1, 2), 5. as f64);
-		assert_eq!(*mat2.get(2, 0), 6. as f64);
-		assert_eq!(*mat2.get(2, 1), 7. as f64);
-		assert_eq!(*mat2.get(2, 2), 8. as f64);
+		assert_eq_delta!(*mat2.get(0, 0), 0. as f64);
+		assert_eq_delta!(*mat2.get(0, 1), 1. as f64);
+		assert_eq_delta!(*mat2.get(0, 2), 2. as f64);
+		assert_eq_delta!(*mat2.get(1, 0), 3. as f64);
+		assert_eq_delta!(*mat2.get(1, 1), 4. as f64);
+		assert_eq_delta!(*mat2.get(1, 2), 5. as f64);
+		assert_eq_delta!(*mat2.get(2, 0), 6. as f64);
+		assert_eq_delta!(*mat2.get(2, 1), 7. as f64);
+		assert_eq_delta!(*mat2.get(2, 2), 8. as f64);
 	}
 
 	#[test]
@@ -938,15 +952,15 @@ mod tests {
 		});
 		let mat2 = mat0.clone() * mat0;
 
-		assert_eq!(*mat2.get(0, 0), 15. as f64);
-		assert_eq!(*mat2.get(0, 1), 18. as f64);
-		assert_eq!(*mat2.get(0, 2), 21. as f64);
-		assert_eq!(*mat2.get(1, 0), 42. as f64);
-		assert_eq!(*mat2.get(1, 1), 54. as f64);
-		assert_eq!(*mat2.get(1, 2), 66. as f64);
-		assert_eq!(*mat2.get(2, 0), 69. as f64);
-		assert_eq!(*mat2.get(2, 1), 90. as f64);
-		assert_eq!(*mat2.get(2, 2), 111. as f64);
+		assert_eq_delta!(*mat2.get(0, 0), 15. as f64);
+		assert_eq_delta!(*mat2.get(0, 1), 18. as f64);
+		assert_eq_delta!(*mat2.get(0, 2), 21. as f64);
+		assert_eq_delta!(*mat2.get(1, 0), 42. as f64);
+		assert_eq_delta!(*mat2.get(1, 1), 54. as f64);
+		assert_eq_delta!(*mat2.get(1, 2), 66. as f64);
+		assert_eq_delta!(*mat2.get(2, 0), 69. as f64);
+		assert_eq_delta!(*mat2.get(2, 1), 90. as f64);
+		assert_eq_delta!(*mat2.get(2, 2), 111. as f64);
 	}
 
 	#[test]
@@ -957,9 +971,9 @@ mod tests {
 		});
 		let vec1 = mat * vec0;
 
-		assert_eq!(*vec1.get(0), 0. as f64);
-		assert_eq!(*vec1.get(1), 1. as f64);
-		assert_eq!(*vec1.get(2), 2. as f64);
+		assert_eq_delta!(*vec1.get(0), 0. as f64);
+		assert_eq_delta!(*vec1.get(1), 1. as f64);
+		assert_eq_delta!(*vec1.get(2), 2. as f64);
 	}
 
 	#[test]
@@ -970,9 +984,9 @@ mod tests {
 		});
 		let vec1 = mat * vec0;
 
-		assert_eq!(*vec1.get(0), 0. as f64);
-		assert_eq!(*vec1.get(1), 2. as f64);
-		assert_eq!(*vec1.get(2), 4. as f64);
+		assert_eq_delta!(*vec1.get(0), 0. as f64);
+		assert_eq_delta!(*vec1.get(1), 2. as f64);
+		assert_eq_delta!(*vec1.get(2), 4. as f64);
 	}
 
 	#[test]
@@ -987,9 +1001,9 @@ mod tests {
 		});
 		let vec1 = mat * vec0;
 
-		assert_eq!(*vec1.get(0), 1. as f64);
-		assert_eq!(*vec1.get(1), 2. as f64);
-		assert_eq!(*vec1.get(2), 1. as f64);
+		assert_eq_delta!(*vec1.get(0), 1. as f64);
+		assert_eq_delta!(*vec1.get(1), 2. as f64);
+		assert_eq_delta!(*vec1.get(2), 1. as f64);
 	}
 
 	#[test]
@@ -1003,7 +1017,7 @@ mod tests {
 		mat /= 2.;
 		for i in 0..3 {
 			for j in 0..3 {
-				assert_eq!(*mat.get(i, j), (i * 3 + j) as f64 / 2.);
+				assert_eq_delta!(*mat.get(i, j), (i * 3 + j) as f64 / 2.);
 			}
 		}
 	}
@@ -1020,22 +1034,22 @@ mod tests {
 		assert!(!mat.is_transposed());
 		assert!(mat.get_height() == 4);
 		assert!(mat.get_width() == 3);
-		assert_eq!(*mat.get(0, 0), 1.);
-		assert_eq!(*mat.get(1, 0), 2.);
-		assert_eq!(*mat.get(1, 2), 3.);
-		assert_eq!(*mat.get(0, 1), 0.);
-		assert_eq!(*mat.get(2, 1), 0.);
+		assert_eq_delta!(*mat.get(0, 0), 1.);
+		assert_eq_delta!(*mat.get(1, 0), 2.);
+		assert_eq_delta!(*mat.get(1, 2), 3.);
+		assert_eq_delta!(*mat.get(0, 1), 0.);
+		assert_eq_delta!(*mat.get(2, 1), 0.);
 
 		mat.transpose();
 
 		assert!(mat.is_transposed());
 		assert!(mat.get_height() == 3);
 		assert!(mat.get_width() == 4);
-		assert_eq!(*mat.get(0, 0), 1.);
-		assert_eq!(*mat.get(0, 1), 2.);
-		assert_eq!(*mat.get(2, 1), 3.);
-		assert_eq!(*mat.get(1, 0), 0.);
-		assert_eq!(*mat.get(1, 2), 0.);
+		assert_eq_delta!(*mat.get(0, 0), 1.);
+		assert_eq_delta!(*mat.get(0, 1), 2.);
+		assert_eq_delta!(*mat.get(2, 1), 3.);
+		assert_eq_delta!(*mat.get(1, 0), 0.);
+		assert_eq_delta!(*mat.get(1, 2), 0.);
 	}
 
 	#[test]
@@ -1047,15 +1061,15 @@ mod tests {
         });
 		mat.rows_swap(0, 1);
 
-        assert_eq!(*mat.get(0, 0), 3.);
-        assert_eq!(*mat.get(0, 1), 4.);
-        assert_eq!(*mat.get(0, 2), 5.);
-        assert_eq!(*mat.get(1, 0), 0.);
-        assert_eq!(*mat.get(1, 1), 1.);
-        assert_eq!(*mat.get(1, 2), 2.);
-        assert_eq!(*mat.get(2, 0), 6.);
-        assert_eq!(*mat.get(2, 1), 7.);
-        assert_eq!(*mat.get(2, 2), 8.);
+        assert_eq_delta!(*mat.get(0, 0), 3.);
+        assert_eq_delta!(*mat.get(0, 1), 4.);
+        assert_eq_delta!(*mat.get(0, 2), 5.);
+        assert_eq_delta!(*mat.get(1, 0), 0.);
+        assert_eq_delta!(*mat.get(1, 1), 1.);
+        assert_eq_delta!(*mat.get(1, 2), 2.);
+        assert_eq_delta!(*mat.get(2, 0), 6.);
+        assert_eq_delta!(*mat.get(2, 1), 7.);
+        assert_eq_delta!(*mat.get(2, 2), 8.);
 	}
 
 	#[test]
@@ -1067,15 +1081,15 @@ mod tests {
         });
 		mat.rows_swap(0, 2);
 
-        assert_eq!(*mat.get(0, 0), 6.);
-        assert_eq!(*mat.get(0, 1), 7.);
-        assert_eq!(*mat.get(0, 2), 8.);
-        assert_eq!(*mat.get(1, 0), 3.);
-        assert_eq!(*mat.get(1, 1), 4.);
-        assert_eq!(*mat.get(1, 2), 5.);
-        assert_eq!(*mat.get(2, 0), 0.);
-        assert_eq!(*mat.get(2, 1), 1.);
-        assert_eq!(*mat.get(2, 2), 2.);
+        assert_eq_delta!(*mat.get(0, 0), 6.);
+        assert_eq_delta!(*mat.get(0, 1), 7.);
+        assert_eq_delta!(*mat.get(0, 2), 8.);
+        assert_eq_delta!(*mat.get(1, 0), 3.);
+        assert_eq_delta!(*mat.get(1, 1), 4.);
+        assert_eq_delta!(*mat.get(1, 2), 5.);
+        assert_eq_delta!(*mat.get(2, 0), 0.);
+        assert_eq_delta!(*mat.get(2, 1), 1.);
+        assert_eq_delta!(*mat.get(2, 2), 2.);
 	}
 
 	#[test]
@@ -1085,7 +1099,7 @@ mod tests {
 
 		for i in 0..mat.get_height() {
 			for j in 0..mat.get_width() {
-				assert_eq!(*mat.get(i, j), 0.);
+				assert_eq_delta!(*mat.get(i, j), 0.);
 			}
 		}
 	}
@@ -1097,7 +1111,7 @@ mod tests {
 
 		for i in 0..mat.get_height() {
 			for j in 0..mat.get_width() {
-				assert_eq!(*mat.get(i, j), if i == j { 1. } else { 0. });
+				assert_eq_delta!(*mat.get(i, j), if i == j { 1. } else { 0. });
 			}
 		}
 	}
@@ -1111,15 +1125,15 @@ mod tests {
 		});
 		mat.to_row_echelon();
 
-		assert_eq!(*mat.get(0, 0), 1.);
-		assert_eq!(*mat.get(0, 1), 0.);
-		assert_eq!(*mat.get(0, 2), -1.);
-		assert_eq!(*mat.get(1, 0), 0.);
-		assert_eq!(*mat.get(1, 1), 1.);
-		assert_eq!(*mat.get(1, 2), 2.);
-		assert_eq!(*mat.get(2, 0), 0.);
-		assert_eq!(*mat.get(2, 1), 0.);
-		assert_eq!(*mat.get(2, 2), 0.);
+		assert_eq_delta!(*mat.get(0, 0), 1.);
+		assert_eq_delta!(*mat.get(0, 1), 0.);
+		assert_eq_delta!(*mat.get(0, 2), -1.);
+		assert_eq_delta!(*mat.get(1, 0), 0.);
+		assert_eq_delta!(*mat.get(1, 1), 1.);
+		assert_eq_delta!(*mat.get(1, 2), 2.);
+		assert_eq_delta!(*mat.get(2, 0), 0.);
+		assert_eq_delta!(*mat.get(2, 1), 0.);
+		assert_eq_delta!(*mat.get(2, 2), 0.);
 	}
 
 	#[test]
@@ -1131,15 +1145,15 @@ mod tests {
 		});
 		mat.to_row_echelon();
 
-		assert_eq!(*mat.get(0, 0), 1.);
-		assert_eq!(*mat.get(0, 1), 0.);
-		assert_eq!(*mat.get(0, 2), 0.);
-		assert_eq!(*mat.get(1, 0), 0.);
-		assert_eq!(*mat.get(1, 1), 1.);
-		assert_eq!(*mat.get(1, 2), 0.);
-		assert_eq!(*mat.get(2, 0), 0.);
-		assert_eq!(*mat.get(2, 1), 0.);
-		assert_eq!(*mat.get(2, 2), 1.);
+		assert_eq_delta!(*mat.get(0, 0), 1.);
+		assert_eq_delta!(*mat.get(0, 1), 0.);
+		assert_eq_delta!(*mat.get(0, 2), 0.);
+		assert_eq_delta!(*mat.get(1, 0), 0.);
+		assert_eq_delta!(*mat.get(1, 1), 1.);
+		assert_eq_delta!(*mat.get(1, 2), 0.);
+		assert_eq_delta!(*mat.get(2, 0), 0.);
+		assert_eq_delta!(*mat.get(2, 1), 0.);
+		assert_eq_delta!(*mat.get(2, 2), 1.);
 	}
 
 	#[test]
@@ -1151,37 +1165,38 @@ mod tests {
 		});
 		mat.to_row_echelon();
 
-		assert_eq!(*mat.get(0, 0), 1.);
-		assert_eq!(*mat.get(0, 1), 0.);
-		assert_eq!(*mat.get(0, 2), 0.);
-		assert_eq!(*mat.get(1, 0), 0.);
-		assert_eq!(*mat.get(1, 1), 1.);
-		assert_eq!(*mat.get(1, 2), 0.);
-		assert_eq!(*mat.get(2, 0), 0.);
-		assert_eq!(*mat.get(2, 1), 0.);
-		assert_eq!(*mat.get(2, 2), 1.);
+		assert_eq_delta!(*mat.get(0, 0), 1.);
+		assert_eq_delta!(*mat.get(0, 1), 0.);
+		assert_eq_delta!(*mat.get(0, 2), -1.);
+		assert_eq_delta!(*mat.get(0, 3), 0.);
+		assert_eq_delta!(*mat.get(0, 4), -2. - (1. / 3.));
+		assert_eq_delta!(*mat.get(0, 5), 1. + (1. / 3.));
 
-		assert_eq!(*mat.get(0, 3), 0.75);
-		assert_eq!(*mat.get(0, 4), 0.5);
-		assert_eq!(*mat.get(0, 5), 0.25);
-		assert_eq!(*mat.get(1, 3), 0.5);
-		assert_eq!(*mat.get(1, 4), 1.);
-		assert_eq!(*mat.get(1, 5), 0.5);
-		assert_eq!(*mat.get(2, 3), 0.25);
-		assert_eq!(*mat.get(2, 4), 0.5);
-		assert_eq!(*mat.get(2, 5), 0.75);
+		assert_eq_delta!(*mat.get(1, 0), 0.);
+		assert_eq_delta!(*mat.get(1, 1), 1.);
+		assert_eq_delta!(*mat.get(1, 2), 2.);
+		assert_eq_delta!(*mat.get(1, 3), 0.);
+		assert_eq_delta!(*mat.get(1, 4), 2.);
+		assert_eq_delta!(*mat.get(1, 5), -1.);
+
+		assert_eq_delta!(*mat.get(2, 0), 0.);
+		assert_eq_delta!(*mat.get(2, 1), 0.);
+		assert_eq_delta!(*mat.get(2, 2), 0.);
+		assert_eq_delta!(*mat.get(2, 3), 1.);
+		assert_eq_delta!(*mat.get(2, 4), -2.);
+		assert_eq_delta!(*mat.get(2, 5), 1.);
 	}
 
 	#[test]
 	fn test_mat_determinant0() {
 		let mat = Matrix::<f64>::new(3, 3);
-		assert_eq!(mat.determinant(), 0 as f64);
+		assert_eq_delta!(mat.determinant(), 0 as f64);
 	}
 
 	#[test]
 	fn test_mat_determinant1() {
 		let mat = Matrix::<f64>::identity(3);
-		assert_eq!(mat.determinant(), 1 as f64);
+		assert_eq_delta!(mat.determinant(), 1 as f64);
 	}
 
 	#[test]
@@ -1192,7 +1207,7 @@ mod tests {
 			2., 0., -1.,
 		});
 
-		assert_eq!(mat.determinant(), 18 as f64);
+		assert_eq_delta!(mat.determinant(), 18 as f64);
 	}
 
 	#[test]
@@ -1203,7 +1218,7 @@ mod tests {
 			0., 0., 4.5,
 		});
 
-		assert_eq!(mat.determinant(), -18 as f64);
+		assert_eq_delta!(mat.determinant(), -18 as f64);
 	}
 
 	#[test]
@@ -1213,7 +1228,7 @@ mod tests {
 
 		for i in 0..inverse.get_height() {
 			for j in 0..inverse.get_width() {
-				assert_eq!(*inverse.get(i, j), if i == j { 1. } else { 0. });
+				assert_eq_delta!(*inverse.get(i, j), if i == j { 1. } else { 0. });
 			}
 		}
 	}
@@ -1227,15 +1242,15 @@ mod tests {
 		});
 		let inverse = mat.get_inverse();
 
-		assert_eq!(*inverse.get(0, 0), 0.75);
-		assert_eq!(*inverse.get(0, 1), 0.5);
-		assert_eq!(*inverse.get(0, 2), 0.25);
-		assert_eq!(*inverse.get(1, 0), 0.5);
-		assert_eq!(*inverse.get(1, 1), 1.);
-		assert_eq!(*inverse.get(1, 2), 0.5);
-		assert_eq!(*inverse.get(2, 0), 0.25);
-		assert_eq!(*inverse.get(2, 1), 0.5);
-		assert_eq!(*inverse.get(2, 2), 0.75);
+		assert_eq_delta!(*inverse.get(0, 0), 0.75);
+		assert_eq_delta!(*inverse.get(0, 1), 0.5);
+		assert_eq_delta!(*inverse.get(0, 2), 0.25);
+		assert_eq_delta!(*inverse.get(1, 0), 0.5);
+		assert_eq_delta!(*inverse.get(1, 1), 1.);
+		assert_eq_delta!(*inverse.get(1, 2), 0.5);
+		assert_eq_delta!(*inverse.get(2, 0), 0.25);
+		assert_eq_delta!(*inverse.get(2, 1), 0.5);
+		assert_eq_delta!(*inverse.get(2, 2), 0.75);
 	}
 
 	// TODO Rank
@@ -1244,7 +1259,7 @@ mod tests {
 	fn test_mat_trace0() {
 		let mut mat = Matrix::<f64>::new(4, 3);
 		mat += 1.;
-		assert_eq!(mat.trace(), 3. as f64);
+		assert_eq_delta!(mat.trace(), 3. as f64);
 	}
 
 	#[test]
@@ -1256,7 +1271,7 @@ mod tests {
 		});
 		let r = mat.solve();
 		for i in 0..r.get_size() {
-			assert_eq!(*r.get(i), 1.);
+			assert_eq_delta!(*r.get(i), 1.);
 		}
 	}
 
@@ -1311,10 +1326,10 @@ mod tests {
         }
 
 		let r = mat.solve();
-		assert_eq!(r.get_size(), 100);
+		assert_eq_delta!(r.get_size(), 100);
 
 		let a = mat.submatrix(0, 0, 100, 100) * r;
-		assert_eq!(a.get_size(), 100);
+		assert_eq_delta!(a.get_size(), 100);
         for i in 0..a.get_size() {
             assert!((*a.get(i) - 1.).abs() < 0.000001);
         }
@@ -1323,27 +1338,27 @@ mod tests {
 	#[test]
 	fn test_vec_length0() {
 		let vec = Vector::<f64>::from_vec(vec!{1., 0., 0.});
-		assert_eq!(vec.length(), 1. as f64);
+		assert_eq_delta!(vec.length(), 1. as f64);
 	}
 
 	#[test]
 	fn test_vec_length1() {
 		let vec = Vector::<f64>::from_vec(vec!{1., 1., 1.});
-		assert_eq!(vec.length(), (3. as f64).sqrt());
+		assert_eq_delta!(vec.length(), (3. as f64).sqrt());
 	}
 
 	#[test]
 	fn test_vec_normalize0() {
 		let mut vec = Vector::<f64>::from_vec(vec!{1., 1., 1.});
 		vec.normalize(1.);
-		assert_eq!(vec.length(), 1. as f64);
+		assert_eq_delta!(vec.length(), 1. as f64);
 	}
 
 	#[test]
 	fn test_vec_dot0() {
 		let vec0 = Vector::<f64>::from_vec(vec!{1., 0., 0.});
 		let vec1 = Vector::<f64>::from_vec(vec!{0., 1., 0.});
-		assert_eq!(vec0.dot(&vec1), 0. as f64);
+		assert_eq_delta!(vec0.dot(&vec1), 0. as f64);
 	}
 
 	#[test]
@@ -1351,9 +1366,9 @@ mod tests {
 		let vec0 = Vector::<f64>::from_vec(vec!{1., 0., 0.});
 		let vec1 = Vector::<f64>::from_vec(vec!{0., 1., 0.});
 		let vec2 = vec0.cross_product(&vec1);
-		assert_eq!(*vec2.get(0), 0. as f64);
-		assert_eq!(*vec2.get(1), 0. as f64);
-		assert_eq!(*vec2.get(2), 1. as f64);
+		assert_eq_delta!(*vec2.get(0), 0. as f64);
+		assert_eq_delta!(*vec2.get(1), 0. as f64);
+		assert_eq_delta!(*vec2.get(2), 1. as f64);
 	}
 
 	#[test]
@@ -1361,8 +1376,8 @@ mod tests {
 		let vec0 = Vector::<f64>::from_vec(vec!{1., 0.5, 2.});
 		let vec1 = Vector::<f64>::from_vec(vec!{0.8, 1., 0.});
 		let vec2 = vec0.cross_product(&vec1);
-		assert_eq!(*vec2.get(0), -2. as f64);
-		assert_eq!(*vec2.get(1), 1.6 as f64);
-		assert_eq!(*vec2.get(2), 0.6 as f64);
+		assert_eq_delta!(*vec2.get(0), -2. as f64);
+		assert_eq_delta!(*vec2.get(1), 1.6 as f64);
+		assert_eq_delta!(*vec2.get(2), 0.6 as f64);
 	}
 }
