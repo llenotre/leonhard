@@ -427,20 +427,18 @@ impl<T: Field<T>> Tensor::<T> for Matrix::<T> {
 impl<T: Field<T>> std::ops::Neg for Matrix::<T> {
     type Output = Matrix::<T>;
 
-    fn neg(self) -> Self::Output {
-        let mut m = self.clone();
-        m.negate();
-        m
+    fn neg(mut self) -> Self::Output {
+        self.negate();
+        self
     }
 }
 
 impl<T: Field<T>> std::ops::Add<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
-    fn add(self, n: T) -> Self::Output {
-        let mut m = self.clone();
-        m.add_val(&n);
-        m
+    fn add(mut self, n: T) -> Self::Output {
+        self.add_val(&n);
+        self
     }
 }
 
@@ -453,10 +451,9 @@ impl<T: Field<T>> std::ops::AddAssign<T> for Matrix::<T> {
 impl<T: Field<T>> std::ops::Sub<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
-    fn sub(self, n: T) -> Self::Output {
-        let mut m = self.clone();
-        m.subtract_val(&n);
-        m
+    fn sub(mut self, n: T) -> Self::Output {
+        self.subtract_val(&n);
+        self
     }
 }
 
@@ -469,10 +466,9 @@ impl<T: Field<T>> std::ops::SubAssign<T> for Matrix::<T> {
 impl<T: Field<T>> std::ops::Mul<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
-    fn mul(self, n: T) -> Self::Output {
-        let mut m = self.clone();
-        m.multiply_val(&n);
-        m
+    fn mul(mut self, n: T) -> Self::Output {
+        self.multiply_val(&n);
+        self
     }
 }
 
@@ -523,10 +519,9 @@ impl<T: Field<T>> std::ops::MulAssign<T> for Matrix::<T> {
 impl<T: Field<T>> std::ops::Div<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
-    fn div(self, n: T) -> Self::Output {
-        let mut m = self.clone();
-        m.divide_val(&n);
-        m
+    fn div(mut self, n: T) -> Self::Output {
+        self.divide_val(&n);
+        self
     }
 }
 
@@ -540,14 +535,15 @@ impl<T: Field<T>> std::fmt::Display for Matrix::<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for i in 0..self.get_height() {
             for j in 0..self.get_width() {
-                write!(f, "{}", *self.get(i, j));
+                let _ = write!(f, "{}", *self.get(i, j));
                 if j < self.get_width() - 1 {
-                    write!(f, " ");
+                    let _ = write!(f, " ");
                 }
             }
-            write!(f, "\n");
+            let _ = write!(f, "\n");
         }
-        write!(f, "")
+        let _ = write!(f, "");
+		Ok(())
     }
 }
 
@@ -723,30 +719,27 @@ impl<T: Field<T>> Tensor::<T> for Vector::<T> {
 impl<T: Field<T>> std::ops::Neg for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn neg(self) -> Self::Output {
-        let mut v = self.clone();
-        v.negate();
-        v
+    fn neg(mut self) -> Self::Output {
+        self.negate();
+        self
     }
 }
 
 impl<T: Field<T>> std::ops::Add<T> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn add(self, n: T) -> Self::Output {
-        let mut v = self.clone();
-        v.add_val(&n);
-        v
+    fn add(mut self, n: T) -> Self::Output {
+        self.add_val(&n);
+        self
     }
 }
 
 impl<T: Field<T>> std::ops::Add<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn add(self, n: Vector::<T>) -> Self::Output {
-        let mut v = self.clone();
-        v.add_self(&n);
-        v
+    fn add(mut self, n: Vector::<T>) -> Self::Output {
+        self.add_self(&n);
+        self
     }
 }
 
@@ -765,20 +758,18 @@ impl<T: Field<T>> std::ops::AddAssign<Vector::<T>> for Vector::<T> {
 impl<T: Field<T>> std::ops::Sub<T> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn sub(self, n: T) -> Self::Output {
-        let mut v = self.clone();
-        v.subtract_val(&n);
-        v
+    fn sub(mut self, n: T) -> Self::Output {
+        self.subtract_val(&n);
+        self
     }
 }
 
 impl<T: Field<T>> std::ops::Sub<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn sub(self, n: Vector::<T>) -> Self::Output {
-        let mut v = self.clone();
-        v.subtract_self(&n);
-        v
+    fn sub(mut self, n: Vector::<T>) -> Self::Output {
+        self.subtract_self(&n);
+        self
     }
 }
 
@@ -797,20 +788,18 @@ impl<T: Field<T>> std::ops::SubAssign<Vector::<T>> for Vector::<T> {
 impl<T: Field<T>> std::ops::Mul<T> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn mul(self, n: T) -> Self::Output {
-        let mut v = self.clone();
-        v.multiply_val(&n);
-        v
+    fn mul(mut self, n: T) -> Self::Output {
+        self.multiply_val(&n);
+        self
     }
 }
 
 impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn mul(self, n: Vector::<T>) -> Self::Output {
-        let mut v = self.clone();
-        v.multiply_self(&n);
-        v
+    fn mul(mut self, n: Vector::<T>) -> Self::Output {
+        self.multiply_self(&n);
+        self
     }
 }
 
@@ -829,20 +818,18 @@ impl<T: Field<T>> std::ops::MulAssign<Vector::<T>> for Vector::<T> {
 impl<T: Field<T>> std::ops::Div<T> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn div(self, n: T) -> Self::Output {
-        let mut v = self.clone();
-        v.divide_val(&n);
-        v
+    fn div(mut self, n: T) -> Self::Output {
+        self.divide_val(&n);
+        self
     }
 }
 
 impl<T: Field<T>> std::ops::Div<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
-    fn div(self, n: Vector::<T>) -> Self::Output {
-        let mut v = self.clone();
-        v.divide_self(&n);
-        v
+    fn div(mut self, n: Vector::<T>) -> Self::Output {
+        self.divide_self(&n);
+        self
     }
 }
 
@@ -861,28 +848,29 @@ impl<T: Field<T>> std::ops::DivAssign<Vector::<T>> for Vector::<T> {
 impl<T: Field<T>> std::fmt::Display for Vector::<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for i in 0..self.get_size() {
-            write!(f, "{}", *self.get(i));
+            let _ = write!(f, "{}", *self.get(i));
             if i < self.get_size() - 1 {
-                write!(f, " ");
+                let _ = write!(f, " ");
             }
         }
-        write!(f, "")
+        let _ = write!(f, "");
+		Ok(())
     }
-}
-
-macro_rules! assert_eq_delta {
-	($n0:expr, $n1:expr) => {
-		let r = ($n0).epsilon_equal(&($n1));
-		if !r {
-			eprintln!("Delta assert fail: {} != {}", $n0, $n1);
-		}
-		assert!(r);
-	}
 }
 
 #[cfg(test)]
 mod tests {
 	use super::*;
+
+	macro_rules! assert_eq_delta {
+		($n0:expr, $n1:expr) => {
+			let r = ($n0).epsilon_equal(&($n1));
+			if !r {
+				eprintln!("Delta assert fail: {} != {}", $n0, $n1);
+			}
+			assert!(r);
+		}
+	}
 
 	#[test]
 	fn test_mat_add() {
@@ -1264,7 +1252,7 @@ mod tests {
 
 	#[test]
 	fn test_mat_solve0() {
-		let mut mat = Matrix::<f64>::from_vec(3, 4, vec!{
+		let mat = Matrix::<f64>::from_vec(3, 4, vec!{
 			1., 0., 0., 1.,
 			0., 1., 0., 1.,
 			0., 0., 1., 1.,
@@ -1277,7 +1265,7 @@ mod tests {
 
 	#[test]
 	fn test_mat_solve1() {
-		let mut mat = Matrix::<f64>::from_vec(2, 3, vec!{
+		let mat = Matrix::<f64>::from_vec(2, 3, vec!{
 			4., 2., -1.,
 			3., -1., 2.,
 		});
@@ -1289,7 +1277,7 @@ mod tests {
 
 	#[test]
 	fn test_mat_solve2() {
-		let mut mat = Matrix::<f64>::from_vec(3, 4, vec!{
+		let mat = Matrix::<f64>::from_vec(3, 4, vec!{
 			3., 2., -1., 1.,
 			2., -2., 4., -2.,
 			-1., 0.5, -1., 0.,
@@ -1303,7 +1291,7 @@ mod tests {
 
 	#[test]
 	fn test_mat_solve3() {
-		let mut mat = Matrix::<f64>::from_vec(2, 4, vec!{
+		let mat = Matrix::<f64>::from_vec(2, 4, vec!{
 			1., 1., 1., 1.,
 			1., 1., 2., 3.,
 		});
