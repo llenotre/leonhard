@@ -1206,6 +1206,23 @@ mod tests {
 	}
 
 	#[test]
+	fn test_mat_system3() {
+		let mut mat = Matrix::<f64>::from_vec(2, 4, vec!{
+			1., 1., 1., 1.,
+			1., 1., 2., 3.,
+		});
+		mat.to_row_echelon();
+		let r = mat.back_substitution();
+		assert_eq!(r.get_size(), 3);
+		println!("{}", r);
+
+		let a = mat.submatrix(0, 0, 2, 3) * r;
+		assert_eq!(a.get_size(), 2);
+		assert!((*a.get(0) - 1.).abs() < 0.000001);
+		assert!((*a.get(1) - 3.).abs() < 0.000001);
+	}
+
+	#[test]
 	fn test_vec_length0() {
 		let vec = Vector::<f64>::from_vec(vec!{1., 0., 0.});
 		assert_eq!(vec.length(), 1. as f64);
