@@ -259,7 +259,7 @@ impl<T: Field<T>> Matrix::<T> {
     pub fn pseudo_inverse(&self, n: &Vector::<T>) -> Vector::<T> {
         let mut transpose = self.clone();
         transpose.transpose();
-        (transpose.clone() * self.clone()).get_inverse() * transpose * n.clone()
+        (transpose.clone() * self.clone()).get_inverse() * (transpose * n.clone())
     }
 
     pub fn trace(&self) -> T {
