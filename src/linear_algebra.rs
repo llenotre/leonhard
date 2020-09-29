@@ -255,6 +255,13 @@ impl<T: Field<T>> Matrix::<T> {
         n
     }
 
+    // TODO Implement for matrices?
+    pub fn pseudo_inverse(&self, n: &Vector::<T>) -> Vector::<T> {
+        let mut transpose = self.clone();
+        transpose.transpose();
+        (transpose.clone() * self.clone()).get_inverse() * transpose * n.clone()
+    }
+
     pub fn trace(&self) -> T {
         let max = min(self.get_height(), self.get_width());
         let mut n = T::additive_identity();
@@ -278,12 +285,15 @@ impl<T: Field<T>> Matrix::<T> {
 		let max = min(mat.get_height(), mat.get_width());
         let mut swaps = Vec::<(usize, usize)>::new();
 
+        println!("begin ->\n{}", mat);
+
 		for i in (0..max).rev() {
 			let b = *mat.get(i, mat.get_width() - 1);
 			let mut v = T::additive_identity();
-			for j in i..(x.get_size() - 1) {
+			for j in i..(mat.get_width() - 1) {
 				v += *mat.get(i, j) * *x.get(j);
 			}
+            println!("row {} sum: {}", i, v);
 
             if *mat.get(i, i) == T::additive_identity() {
                 let mut pivot = 0;
@@ -294,23 +304,28 @@ impl<T: Field<T>> Matrix::<T> {
                     }
                 }
                 if pivot != i {
+                    println!("swap -> {} {}", i, pivot);
                     swaps.push((i, pivot));
                     mat.columns_swap(i, pivot);
                     let n = *x.get(i);
                     *x.get_mut(i) = *x.get(pivot);
                     *x.get_mut(pivot) = n;
+                    println!("swap result ->\n{}", mat);
                 }
             }
 
 			*x.get_mut(i) = (b - v) / *mat.get(i, i);
+            println!("x{} = {}", i, *x.get_mut(i));
 		}
 
+        println!("before unswap -> {}", x);
         for i in (0..swaps.len()).rev() {
             let (s0, s1) = swaps[i];
             let n = *x.get(s0);
             *x.get_mut(s0) = *x.get(s1);
             *x.get_mut(s1) = n;
         }
+        println!("after unswap -> {}", x);
     }
 
 	pub fn back_substitution(&self) -> Vector::<T> {
