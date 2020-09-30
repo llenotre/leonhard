@@ -317,18 +317,19 @@ impl<T: Field<T>> Matrix::<T> {
             println!("row {} sum: {}", i, v);
 
 			*x.get_mut(i) = (b - v) / *mat.get(i, i);
-            println!("x{} = {}", i, *x.get_mut(i));
+            println!("x: {}", x);
 			solved[i] = true;
 		}
 
         println!("before unswap -> {}", x);
         for i in (0..swaps.len()).rev() {
             let (s0, s1) = swaps[i];
+			mat.columns_swap(s0, s1);
             let n = *x.get(s0);
             *x.get_mut(s0) = *x.get(s1);
             *x.get_mut(s1) = n;
         }
-        println!("after unswap -> {}", x);
+        println!("after unswap -> {}\n{}", x, mat);
 		// TODO Assert that every field is solved
     }
 
@@ -1250,6 +1251,21 @@ mod tests {
 		assert_eq_delta!(mat.trace(), 3. as f64);
 	}
 
+	fn test_system(system: &Matrix::<f64>) {
+		let r = system.solve();
+		let r_size = r.get_size();
+		assert_eq!(r_size, system.get_width() - 1);
+
+		let a = system.submatrix(0, 0, system.get_height(), r_size) * r.clone(); // TODO rm clone
+		assert_eq!(a.get_size(), system.get_height());
+		println!("=> {}", r);
+		println!("==> {}", system.submatrix(0, 0, system.get_height(), r_size));
+		println!("=======> {}", a);
+        for i in 0..a.get_size() {
+            assert_eq_delta!(*a.get(i), *system.get(i, system.get_width() - 1));
+        }
+	}
+
 	#[test]
 	fn test_mat_solve0() {
 		let mat = Matrix::<f64>::from_vec(3, 4, vec!{
@@ -1257,10 +1273,7 @@ mod tests {
 			0., 1., 0., 1.,
 			0., 0., 1., 1.,
 		});
-		let r = mat.solve();
-		for i in 0..r.get_size() {
-			assert_eq_delta!(*r.get(i), 1.);
-		}
+		test_system(&mat);
 	}
 
 	#[test]
@@ -1269,10 +1282,7 @@ mod tests {
 			4., 2., -1.,
 			3., -1., 2.,
 		});
-		let r = mat.solve();
-		assert_eq!(r.get_size(), 2);
-		assert!((*r.get(0) - 0.3).abs() < 0.000001);
-		assert!((*r.get(1) - -1.1).abs() < 0.000001);
+		test_system(&mat);
 	}
 
 	#[test]
@@ -1282,11 +1292,7 @@ mod tests {
 			2., -2., 4., -2.,
 			-1., 0.5, -1., 0.,
 		});
-		let r = mat.solve();
-		assert_eq!(r.get_size(), 3);
-		assert!((*r.get(0) - 1.).abs() < 0.000001);
-		assert!((*r.get(1) - -2.).abs() < 0.000001);
-		assert!((*r.get(2) - -2.).abs() < 0.000001);
+		test_system(&mat);
 	}
 
 	#[test]
@@ -1295,13 +1301,7 @@ mod tests {
 			1., 1., 1., 1.,
 			1., 1., 2., 3.,
 		});
-		let r = mat.solve();
-		assert_eq!(r.get_size(), 3);
-
-		let a = mat.submatrix(0, 0, 2, 3) * r;
-		assert_eq!(a.get_size(), 2);
-		assert!((*a.get(0) - 1.).abs() < 0.000001);
-		assert!((*a.get(1) - 3.).abs() < 0.000001);
+		test_system(&mat);
 	}
 
 	/*#[test]
@@ -1312,15 +1312,7 @@ mod tests {
                 *mat.get_mut(i, j) = 1.;
             }
         }
-
-		let r = mat.solve();
-		assert_eq_delta!(r.get_size(), 100);
-
-		let a = mat.submatrix(0, 0, 100, 100) * r;
-		assert_eq_delta!(a.get_size(), 100);
-        for i in 0..a.get_size() {
-            assert!((*a.get(i) - 1.).abs() < 0.000001);
-        }
+		test_system(&mat);
 	}*/
 
 	#[test]
