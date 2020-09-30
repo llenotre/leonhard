@@ -120,6 +120,16 @@ impl<T: Field<T>> Matrix::<T> {
         m
     }
 
+    pub fn to_vector(&self) -> Vector::<T> {
+        // TODO Assert that matrix has only one column
+
+        let mut vec = Vector::<T>::new(self.get_height());
+        for i in 0..self.get_height() {
+            *vec.get_mut(i) = *self.get(i, 0);
+        }
+        vec
+    }
+
     pub fn transpose(&mut self) -> &mut Self {
         self.transposed = !self.transposed;
         self
@@ -279,58 +289,18 @@ impl<T: Field<T>> Matrix::<T> {
 	// TODO QR decomposition
 	// TODO Forward substitution
 
-    // TODO Clean
 	fn back_substitution_(&self, x: &mut Vector::<T>) {
-        let mut mat = self.clone();
+        let mat = self.clone();
 		let max = min(mat.get_height(), mat.get_width());
-        let mut swaps = Vec::<(usize, usize)>::new();
-		let mut solved = Vec::<bool>::new();
-		solved.resize(mat.get_width() - 1, false);
-
-        println!("begin ->\n{}", mat);
 
 		for i in (0..max).rev() {
-            if *mat.get(i, i) == T::additive_identity() {
-                let mut pivot = 0;
-                for k in i..(mat.get_width() - 1) {
-                    if *mat.get(i, k) != T::additive_identity() && !solved[k] {
-                        pivot = k;
-                        break;
-                    }
-                }
-                if pivot != i {
-                    println!("swap -> {} {}", i, pivot);
-                    swaps.push((i, pivot));
-                    mat.columns_swap(i, pivot);
-                    let n = *x.get(i);
-                    *x.get_mut(i) = *x.get(pivot);
-                    *x.get_mut(pivot) = n;
-                    println!("swap result ->\n{}", mat);
-                }
-            }
-
 			let b = *mat.get(i, mat.get_width() - 1);
 			let mut v = T::additive_identity();
 			for j in i..(mat.get_width() - 1) {
 				v += *mat.get(i, j) * *x.get(j);
 			}
-            println!("row {} sum: {}", i, v);
-
 			*x.get_mut(i) = (b - v) / *mat.get(i, i);
-            println!("x: {}", x);
-			solved[i] = true;
 		}
-
-        println!("before unswap -> {}", x);
-        for i in (0..swaps.len()).rev() {
-            let (s0, s1) = swaps[i];
-			mat.columns_swap(s0, s1);
-            let n = *x.get(s0);
-            *x.get_mut(s0) = *x.get(s1);
-            *x.get_mut(s1) = n;
-        }
-        println!("after unswap -> {}\n{}", x, mat);
-		// TODO Assert that every field is solved
     }
 
 	pub fn back_substitution(&self) -> Vector::<T> {
@@ -340,28 +310,11 @@ impl<T: Field<T>> Matrix::<T> {
 	}
 
     pub fn solve(&self) -> Vector::<T> {
-        let mut mat = self.clone();
-        mat.to_row_echelon();
-
-        // TODO Handle overdetermined systems
-        let mut x = Vector::<T>::new(mat.get_width() - 1);
-        if mat.get_height() < mat.get_width() - 1 {
-            let mut v = Vector::<T>::new(mat.get_width() - mat.get_height());
-            for i in 0..v.get_size() {
-                *v.get_mut(i) = *mat.get(mat.get_height() - 1, mat.get_height() - 1 + i);
-            }
-
-            let v_len2 = v.clone().length_squared();
-            let u = v.clone() / v_len2 * *mat.get(mat.get_height() - 1, mat.get_width() - 1);
-            for i in 0..u.get_size() {
-                *mat.get_mut(mat.get_height() - 1, mat.get_height() - 1 + i) = *u.get(i);
-            }
-
-            mat.back_substitution_(&mut x);
-        } else {
-            mat.back_substitution_(&mut x);
-        }
-        x
+        let a = self.submatrix(0, 0, self.get_height(), self.get_width() - 1);
+        let b = self.submatrix(0, self.get_width() - 1, self.get_height(), 1);
+        let mut transpose = a.clone();
+        transpose.transpose();
+        (transpose.clone() * ((a * transpose).get_inverse() * b)).to_vector()
     }
 }
 
@@ -1177,6 +1130,23 @@ mod tests {
 	}
 
 	#[test]
+	fn test_mat_row_echelon5() {
+		let mut mat = Matrix::<f64>::new(10, 10);
+        for i in 0..mat.get_height() {
+            for j in 0..mat.get_width() {
+                *mat.get_mut(i, j) = 1.;
+            }
+        }
+		mat.to_row_echelon();
+
+        for i in 0..mat.get_height() {
+            for j in 0..mat.get_width() {
+                assert_eq_delta!(*mat.get(i, j), if i == 0 { 1. } else { 0. });
+            }
+        }
+	}
+
+	#[test]
 	fn test_mat_determinant0() {
 		let mat = Matrix::<f64>::new(3, 3);
 		assert_eq_delta!(mat.determinant(), 0 as f64);
@@ -1258,9 +1228,6 @@ mod tests {
 
 		let a = system.submatrix(0, 0, system.get_height(), r_size) * r.clone(); // TODO rm clone
 		assert_eq!(a.get_size(), system.get_height());
-		println!("=> {}", r);
-		println!("==> {}", system.submatrix(0, 0, system.get_height(), r_size));
-		println!("=======> {}", a);
         for i in 0..a.get_size() {
             assert_eq_delta!(*a.get(i), *system.get(i, system.get_width() - 1));
         }
@@ -1304,7 +1271,7 @@ mod tests {
 		test_system(&mat);
 	}
 
-	/*#[test]
+	#[test]
 	fn test_mat_solve4() {
 		let mut mat = Matrix::<f64>::new(100, 101);
         for i in 0..mat.get_height() {
@@ -1313,7 +1280,7 @@ mod tests {
             }
         }
 		test_system(&mat);
-	}*/
+	}
 
 	#[test]
 	fn test_vec_length0() {
