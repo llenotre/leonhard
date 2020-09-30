@@ -135,6 +135,9 @@ impl<T: Field<T>> Matrix::<T> {
         self
     }
 
+    // TODO Hadamard product
+    // TODO Kronecker product
+
     pub fn rows_swap(&mut self, i: usize, j: usize) {
         assert!(i < self.get_height());
         assert!(j < self.get_height());
@@ -282,9 +285,46 @@ impl<T: Field<T>> Matrix::<T> {
         n
     }
 
-	// TODO Is triangular
-	// TODO Is upper triangular
-	// TODO Is lower triangular
+    // TODO test
+    pub fn is_upper_triangular() {
+        if !self.is_square() {
+            return false;
+        }
+
+        for i in 1..get_height() {
+            for j in 1..i {
+                if !self.get(i, j).epsilon_equal(T::additive_identity) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    // TODO test
+    pub fn is_lower_triangular() {
+        if !self.is_square() {
+            return false;
+        }
+
+        for i in 1..get_width() {
+            for j in 1..i {
+                if !self.get(j, i).epsilon_equal(T::additive_identity) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    pub fn is_triangular() {
+        is_upper_triangular() || is_lower_triangular()
+    }
+
+    // TODO Is null
+    // TODO Is diagonal
+    // TODO Is identity
+
 	// TODO LU decomposition
 	// TODO QR decomposition
 	// TODO Forward substitution
