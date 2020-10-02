@@ -286,14 +286,14 @@ impl<T: Field<T>> Matrix::<T> {
     }
 
     // TODO test
-    pub fn is_upper_triangular() {
+    pub fn is_upper_triangular(&self) -> bool {
         if !self.is_square() {
             return false;
         }
 
-        for i in 1..get_height() {
+        for i in 1..self.get_height() {
             for j in 1..i {
-                if !self.get(i, j).epsilon_equal(T::additive_identity) {
+                if !self.get(i, j).epsilon_equal(&T::additive_identity()) {
                     return false;
                 }
             }
@@ -302,14 +302,14 @@ impl<T: Field<T>> Matrix::<T> {
     }
 
     // TODO test
-    pub fn is_lower_triangular() {
+    pub fn is_lower_triangular(&self) -> bool {
         if !self.is_square() {
             return false;
         }
 
-        for i in 1..get_width() {
+        for i in 1..self.get_width() {
             for j in 1..i {
-                if !self.get(j, i).epsilon_equal(T::additive_identity) {
+                if !self.get(j, i).epsilon_equal(&T::additive_identity()) {
                     return false;
                 }
             }
@@ -317,8 +317,8 @@ impl<T: Field<T>> Matrix::<T> {
         true
     }
 
-    pub fn is_triangular() {
-        is_upper_triangular() || is_lower_triangular()
+    pub fn is_triangular(&self) -> bool {
+        self.is_upper_triangular() || self.is_lower_triangular()
     }
 
     // TODO Is null
