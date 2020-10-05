@@ -268,6 +268,10 @@ impl<T: Field<T>> Matrix::<T> {
         n
     }
 
+	pub fn is_full_rank(&self) -> bool {
+		self.rank() == min(self.get_height(), self.get_width())
+	}
+
     // TODO Implement for matrices?
     pub fn pseudo_inverse(&self, n: &Vector::<T>) -> Vector::<T> {
         let mut transpose = self.clone();
