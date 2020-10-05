@@ -251,7 +251,7 @@ impl<T: Field<T>> Matrix::<T> {
         let mut m = self.clone();
         m.to_row_echelon();
 
-        let mut n: usize = 0;
+        let mut n = 0;
         for i in 0..m.get_height() {
             let mut r = false;
             for j in 0..m.get_width() {
@@ -1252,7 +1252,27 @@ mod tests {
 		assert_eq_delta!(*inverse.get(2, 2), 0.75);
 	}
 
-	// TODO Rank
+	#[test]
+	fn test_mat_rank0() {
+		let mat = Matrix::<f64>::new(3, 3);
+		assert_eq!(mat.rank(), 0);
+	}
+
+	#[test]
+	fn test_mat_rank1() {
+		let mat = Matrix::<f64>::identity(3);
+		assert_eq!(mat.rank(), 3);
+	}
+
+	#[test]
+	fn test_mat_rank2() {
+		let mat = Matrix::<f64>::from_vec(3, 3, vec!{
+			0., 1., 2.,
+			3., 4., 5.,
+			6., 7., 8.,
+		});
+		assert_eq!(mat.rank(), 2);
+	}
 
 	#[test]
 	fn test_mat_trace0() {
