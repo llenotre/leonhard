@@ -1,5 +1,5 @@
 pub fn lerp<T>(v0: T, v1: T, t: f64) -> T
-	where T: Copy + std::ops::Add<Output = T> + std::ops::Mul<f64, Output = T> {
+	where T: std::ops::Add<Output = T> + std::ops::Mul<f64, Output = T> {
 	v0 * (1. - t) + v1 * t
 }
 
