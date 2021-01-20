@@ -135,8 +135,19 @@ impl<T: Field<T>> Matrix::<T> {
         self
     }
 
-    // TODO Hadamard product
-    // TODO Kronecker product
+	pub fn hadamard_product(&self, n: &Self) -> Self {
+		// TODO Assert that matrices have the same dimensions
+
+        let mut m = self.clone();
+		for i in 0..self.get_height() {
+			for j in 0..self.get_width() {
+				*m.get_mut(i, j) *= *n.get(i, j);
+			}
+		}
+		m
+	}
+
+	// TODO Kronecker product
 
     pub fn rows_swap(&mut self, i: usize, j: usize) {
         assert!(i < self.get_height());
@@ -331,6 +342,10 @@ impl<T: Field<T>> Matrix::<T> {
 
 	// TODO LU decomposition
 	// TODO QR decomposition
+	// TODO Cholesky decomposition
+	// TODO Singular value decomposition
+	// TODO Eigenvectors decomposition
+
 	// TODO Forward substitution
 
 	fn back_substitution_(&self, x: &mut Vector::<T>) {
@@ -1037,6 +1052,9 @@ mod tests {
 		assert_eq_delta!(*mat.get(1, 0), 0.);
 		assert_eq_delta!(*mat.get(1, 2), 0.);
 	}
+
+	// TODO Hadamard product
+	// TODO Kronecker product
 
 	#[test]
 	fn test_mat_rows_swap0() {
