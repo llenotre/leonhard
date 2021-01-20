@@ -4,6 +4,7 @@ pub mod complex;
 pub mod linear_algebra;
 pub mod math;
 pub mod polynom;
+pub mod statistics;
 
 pub trait Field<T>: Copy + std::fmt::Display
 	+ std::ops::Neg<Output = T>
