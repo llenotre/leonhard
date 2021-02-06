@@ -1,6 +1,7 @@
 use crate::Field;
 use std::cmp::min;
 use std::fmt;
+use std::ops::{Index, IndexMut};
 
 pub trait Tensor<T: Field<T>> {
     fn negate(&mut self);
@@ -726,6 +727,20 @@ impl<T: Field<T>> Tensor::<T> for Vector::<T> {
         for i in 0..self.data.len() {
             self.data[i] /= n.data[i];
         }
+    }
+}
+
+impl<T: Field<T>> Index<usize> for Vector::<T> {
+    type Output = T;
+
+    fn index(&self, i: usize) -> &Self::Output {
+		self.get(i)
+    }
+}
+
+impl<T: Field<T>> IndexMut<usize> for Vector::<T> {
+    fn index_mut(&mut self, i: usize) -> &mut T {
+		self.get_mut(i)
     }
 }
 

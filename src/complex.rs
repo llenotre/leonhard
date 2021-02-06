@@ -26,8 +26,7 @@ impl<T: Field<T>> Complex::<T> {
 	}
 
 	pub fn argument(&self) -> T {
-		// TODO
-		T::additive_identity()
+		self.y.atan2(&self.x)
 	}
 }
 

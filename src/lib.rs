@@ -25,6 +25,7 @@ pub trait Field<T>: Copy + std::fmt::Display
 
 	fn abs(&self) -> T;
 	fn sqrt(&self) -> T;
+	fn atan2(&self, n: &T) -> T;
 
 	fn epsilon_equal(&self, n: &T) -> bool;
 }
@@ -50,6 +51,10 @@ macro_rules! primitive_field {
 
 			fn sqrt(&self) -> $type {
 				f64::sqrt(*self as f64) as $type
+			}
+
+			fn atan2(&self, n: &$type) -> $type {
+				f64::atan2(*self as f64, *n as f64) as $type
 			}
 
 			fn epsilon_equal(&self, n: &$type) -> bool {
