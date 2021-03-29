@@ -1,37 +1,57 @@
+/// This module implements linear algebra utilities.
+
 use crate::Field;
 use std::cmp::min;
 use std::fmt;
 use std::ops::{Index, IndexMut};
 
+/// Trait to implement for tensor objects.
 pub trait Tensor<T: Field<T>> {
+	/// Negates the tensor.
     fn negate(&mut self);
+	/// Adds a value to every elements of the tensor.
     fn add_val(&mut self, n: &T);
+	/// Adds another tensor to the tensor.
     fn add_self(&mut self, n: &Self);
 
+	/// Subtracts a value from the tensor.
     fn subtract_val(&mut self, n: &T);
+	/// Subtracts another tensor from the tensor.
     fn subtract_self(&mut self, n: &Self);
 
+	/// Multiplies a value to the tensor.
     fn multiply_val(&mut self, n: &T);
+	/// Multiplies another tensor to the tensor.
     fn multiply_self(&mut self, n: &Self);
 
+	/// Divides a value from the tensor.
     fn divide_val(&mut self, n: &T);
+	/// Divides another tensor from the tensor.
     fn divide_self(&mut self, n: &Self);
 }
 
+/// Structure representing a matrix.
 #[derive(Clone)]
 pub struct Matrix<T: Field<T>> {
+	/// The height of the matrix.
     height: usize,
+	/// The width of the matrix.
     width: usize,
+	/// The data into the matrix.
     data: Vec<T>,
+	/// Whether the vector is transposed or not.
     transposed: bool,
 }
 
+/// Structure representing a vector.
 #[derive(Clone)]
 pub struct Vector<T: Field<T>> {
+	/// The data into the vector.
     data: Vec<T>,
 }
 
 impl<T: Field<T>> Matrix::<T> {
+	/// Creates a new instance with size `height` and `width`.
     pub fn new(height: usize, width: usize) -> Self {
         assert!(height != 0 && width != 0);
 
@@ -45,6 +65,7 @@ impl<T: Field<T>> Matrix::<T> {
         mat
     }
 
+	/// Creates a new instance from the given vector `values` with size `height` and `width`.
     pub fn from_vec(height: usize, width: usize, values: Vec::<T>) -> Self {
         assert!(height != 0 && width != 0);
 		assert_eq!(values.len(), height * width);
@@ -58,6 +79,7 @@ impl<T: Field<T>> Matrix::<T> {
         mat
     }
 
+	/// Creates an identity matrix of size `size` * `size`.
     pub fn identity(size: usize) -> Matrix::<T> {
         let mut mat = Self::new(size, size);
 
@@ -67,6 +89,7 @@ impl<T: Field<T>> Matrix::<T> {
         mat
     }
 
+	/// Returns the height of the matrix.
     pub fn get_height(&self) -> usize {
         if self.is_transposed() {
             self.width
@@ -75,6 +98,7 @@ impl<T: Field<T>> Matrix::<T> {
         }
     }
 
+	/// Returns the width of the matrix.
     pub fn get_width(&self) -> usize {
         if self.is_transposed() {
             self.height
@@ -83,18 +107,22 @@ impl<T: Field<T>> Matrix::<T> {
         }
     }
 
+	/// Tells whether the matrix is square or not.
     pub fn is_square(&self) -> bool {
         self.height == self.width
     }
 
+	/// Tells whether the matrix is transposed or not.
     pub fn is_transposed(&self) -> bool {
         self.transposed
     }
 
+	/// Returns a linear vector to the matrix's data.
     pub fn get_data(&self) -> &Vec<T> {
         &self.data
     }
 
+	/// Returns a reference to the value at `y`, `x`.
     pub fn get(&self, y: usize, x: usize) -> &T {
         if self.transposed {
             &self.data[x * self.width + y]
@@ -103,6 +131,7 @@ impl<T: Field<T>> Matrix::<T> {
         }
     }
 
+	/// Returns a mutable reference to the value at `y`, `x`.
     pub fn get_mut(&mut self, y: usize, x: usize) -> &mut T {
         if self.transposed {
             &mut self.data[x * self.width + y]
@@ -111,6 +140,7 @@ impl<T: Field<T>> Matrix::<T> {
         }
     }
 
+	/// Creates a submatrix from position `y`, `x` of size `height` and `width`.
     pub fn submatrix(&self, y: usize, x: usize, height: usize, width: usize) -> Self {
         assert!(y + height <= self.get_height());
         assert!(x + width <= self.get_width());
@@ -124,6 +154,8 @@ impl<T: Field<T>> Matrix::<T> {
         m
     }
 
+	/// Converts the matrix into a vector. If the matrix has more than one column, the behaviour
+	/// is undefined.
     pub fn to_vector(&self) -> Vector::<T> {
         assert_eq!(self.get_width(), 1);
 
@@ -134,11 +166,13 @@ impl<T: Field<T>> Matrix::<T> {
         vec
     }
 
+	/// Transposes the matrix.
     pub fn transpose(&mut self) -> &mut Self {
         self.transposed = !self.transposed;
         self
     }
 
+	/// Computes the Hadamard product with the given matrix `n`.
 	pub fn hadamard_product(&self, n: &Self) -> Self {
         assert_eq!(self.get_height(), n.get_height());
 		assert_eq!(self.get_width(), n.get_width());
@@ -154,6 +188,7 @@ impl<T: Field<T>> Matrix::<T> {
 
 	// TODO Kronecker product
 
+	/// Swaps rows `i` and `j`.
     pub fn rows_swap(&mut self, i: usize, j: usize) {
         assert!(i < self.get_height() && j < self.get_height());
 
@@ -167,6 +202,7 @@ impl<T: Field<T>> Matrix::<T> {
         }
     }
 
+	/// Columns rows `i` and `j`.
     pub fn columns_swap(&mut self, i: usize, j: usize) {
         assert!(i < self.get_width() && j < self.get_width());
 
@@ -180,6 +216,8 @@ impl<T: Field<T>> Matrix::<T> {
         }
     }
 
+	/// Passes the matrix to row echelon form. `d` must be a reference to a zero-initialized
+	/// variable and will be set with a value used to compute the matrix's determinant.
     fn to_row_echelon_(&mut self, d: &mut T) {
 		let mut j = 0;
 		let mut r = 0;
@@ -225,11 +263,13 @@ impl<T: Field<T>> Matrix::<T> {
 		}
     }
 
+	/// Passes the matrix to row echelon form.
     pub fn to_row_echelon(&mut self) {
         let mut d = T::multiplicative_identity();
         self.to_row_echelon_(&mut d);
     }
 
+	/// Computes the determinant of the matrix.
     pub fn determinant(&self) -> T {
         let mut d = T::multiplicative_identity();
         let mut n = T::multiplicative_identity();
@@ -242,10 +282,12 @@ impl<T: Field<T>> Matrix::<T> {
         n / d
     }
 
+	/// Tells whether the matrix is invertible.
     pub fn is_invertible(&self) -> bool {
         self.determinant() != T::additive_identity()
     }
 
+	/// Returns the inverse of the matrix.
     pub fn get_inverse(&self) -> Self {
         let mut m = Self::new(self.get_height(), self.get_width() * 2);
         for i in 0..self.get_height() {
@@ -261,6 +303,7 @@ impl<T: Field<T>> Matrix::<T> {
         m.submatrix(0, self.get_width(), self.get_height(), self.get_width())
     }
 
+	/// Returns the rank of the matrix.
     pub fn rank(&self) -> usize {
         let mut m = self.clone();
         m.to_row_echelon();
@@ -282,17 +325,20 @@ impl<T: Field<T>> Matrix::<T> {
         n
     }
 
+	/// Tells whether the matrix is full rank.
 	pub fn is_full_rank(&self) -> bool {
 		self.rank() == min(self.get_height(), self.get_width())
 	}
 
     // TODO Implement for matrices?
+	/// Computes the pseudo inverse of the matrix with the given vector `n`.
     pub fn pseudo_inverse(&self, n: &Vector::<T>) -> Vector::<T> {
         let mut transpose = self.clone();
         transpose.transpose();
         (transpose.clone() * self.clone()).get_inverse() * (transpose * n.clone())
     }
 
+	/// Computes the trace of the matrix.
     pub fn trace(&self) -> T {
         let max = min(self.get_height(), self.get_width());
         let mut n = T::additive_identity();
@@ -304,6 +350,7 @@ impl<T: Field<T>> Matrix::<T> {
     }
 
     // TODO test
+	/// Tells whether the matrix is upper triangular.
     pub fn is_upper_triangular(&self) -> bool {
         if !self.is_square() {
             return false;
@@ -320,6 +367,7 @@ impl<T: Field<T>> Matrix::<T> {
     }
 
     // TODO test
+	/// Tells whether the matrix is lower triangular.
     pub fn is_lower_triangular(&self) -> bool {
         if !self.is_square() {
             return false;
@@ -335,6 +383,7 @@ impl<T: Field<T>> Matrix::<T> {
         true
     }
 
+	/// Tells whether the matrix is triangular.
     pub fn is_triangular(&self) -> bool {
         self.is_upper_triangular() || self.is_lower_triangular()
     }
@@ -351,6 +400,7 @@ impl<T: Field<T>> Matrix::<T> {
 
 	// TODO Forward substitution
 
+	/// TODO doc
 	fn back_substitution_(&self, x: &mut Vector::<T>) {
         let mat = self.clone();
 		let max = min(mat.get_height(), mat.get_width());
@@ -365,12 +415,14 @@ impl<T: Field<T>> Matrix::<T> {
 		}
     }
 
+	/// TODO doc
 	pub fn back_substitution(&self) -> Vector::<T> {
         let mut x = Vector::<T>::new(self.get_width() - 1);
 		self.back_substitution_(&mut x);
         x
 	}
 
+	/// Solves the given system considering the matrix to be augmented.
     pub fn solve(&self) -> Vector::<T> {
         let a = self.submatrix(0, 0, self.get_height(), self.get_width() - 1);
         let b = self.submatrix(0, self.get_width() - 1, self.get_height(), 1).to_vector();
@@ -570,6 +622,7 @@ impl<T: Field<T>> std::fmt::Display for Matrix::<T> {
 }
 
 impl<T: Field<T>> Vector::<T> {
+	/// Creates a new instance of size `size`.
     pub fn new(size: usize) -> Self {
         let mut v = Self {
             data: Vec::with_capacity(size),
@@ -578,6 +631,7 @@ impl<T: Field<T>> Vector::<T> {
         v
     }
 
+	/// Creates a new instance with values in `values`.
     pub fn from_vec(values: Vec::<T>) -> Self {
         let v = Self {
             data: values,
@@ -585,56 +639,71 @@ impl<T: Field<T>> Vector::<T> {
         v
     }
 
+	/// Returns the size of the vector.
     pub fn get_size(&self) -> usize {
         self.data.len()
     }
 
+	/// Returns a vec containing the data of the vector.
     pub fn get_data(&self) -> &Vec<T> {
         &self.data
     }
 
+	/// Returns a reference to the `i`th element of the vector.
     pub fn get(&self, i: usize) -> &T {
         &self.data[i]
     }
 
+	/// Returns a mutable reference to the `i`th element of the vector.
     pub fn get_mut(&mut self, i: usize) -> &mut T {
         &mut self.data[i]
     }
 
+	/// Returns a reference to the x element of the vector.
     pub fn x(&self) -> &T {
         self.get(0)
     }
 
+	/// Returns a mutable reference to the x element of the vector.
     pub fn x_mut(&mut self) -> &mut T {
         self.get_mut(0)
     }
 
+	/// Returns a reference to the y element of the vector.
     pub fn y(&self) -> &T {
         self.get(1)
     }
 
+	/// Returns a mutable reference to the y element of the vector.
     pub fn y_mut(&mut self) -> &mut T {
         self.get_mut(1)
     }
 
+	/// Returns a reference to the z element of the vector.
     pub fn z(&self) -> &T {
         self.get(2)
     }
 
+	/// Returns a mutable reference to the z element of the vector.
     pub fn z_mut(&mut self) -> &mut T {
         self.get_mut(2)
     }
 
+	/// Returns a reference to the w element of the vector.
     pub fn w(&self) -> &T {
         self.get(3)
     }
 
+	/// Returns a mutable reference to the w element of the vector.
     pub fn w_mut(&mut self) -> &mut T {
         self.get_mut(3)
     }
 
     // TODO to_matrix
 
+	// TODO 1-norm, p-norm and inf-norm
+
+	/// Returns the squared euclidean length of the vector.
     pub fn length_squared(&self) -> T {
         let mut n = T::additive_identity();
 
@@ -645,10 +714,12 @@ impl<T: Field<T>> Vector::<T> {
         n
     }
 
+	/// Returns the length of the vector.
     pub fn length(&self) -> T {
         self.length_squared().sqrt()
     }
 
+	/// Normalizes the vector to the given length `length`.
     pub fn normalize(&mut self, length: T) -> &mut Self {
         let len = self.length();
 
@@ -658,6 +729,7 @@ impl<T: Field<T>> Vector::<T> {
         self
     }
 
+	/// Computes the dot product with the other vector `other`.
     pub fn dot(&self, other: &Vector<T>) -> T {
 		assert_eq!(self.get_size(), other.get_size());
 
@@ -668,6 +740,8 @@ impl<T: Field<T>> Vector::<T> {
         n
     }
 
+	/// Computes the cross product between the current vector and `other`. If the vector isn't
+	/// 3-dimensional, the behaviour is undefined.
     pub fn cross_product(&self, other: &Vector<T>) -> Self {
 		assert_eq!(self.get_size(), 3);
 		assert_eq!(other.get_size(), 3);
