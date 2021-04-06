@@ -50,6 +50,14 @@ pub struct Vector<T: Field<T>> {
     data: Vec<T>,
 }
 
+impl<T: Field<T>> From::<T> for Matrix::<T> {
+	fn from(val: T) -> Self {
+		let mut vec = Self::new(1, 1);
+		*vec.get_mut(0, 0) = val;
+		vec
+	}
+}
+
 impl<T: Field<T>> Matrix::<T> {
 	/// Creates a new instance with size `height` and `width`.
     pub fn new(height: usize, width: usize) -> Self {
@@ -619,6 +627,14 @@ impl<T: Field<T>> std::fmt::Display for Matrix::<T> {
         let _ = write!(f, "");
 		Ok(())
     }
+}
+
+impl<T: Field<T>> From::<T> for Vector::<T> {
+	fn from(val: T) -> Self {
+		let mut vec = Self::new(1);
+		*vec.x_mut() = val;
+		vec
+	}
 }
 
 impl<T: Field<T>> Vector::<T> {
