@@ -530,6 +530,21 @@ impl<T: Field<T>> std::ops::AddAssign<T> for Matrix::<T> {
     }
 }
 
+impl<T: Field<T>> std::ops::Add<Matrix::<T>> for Matrix::<T> {
+    type Output = Matrix::<T>;
+
+    fn add(mut self, n: Matrix::<T>) -> Self::Output {
+        self.add_self(&n);
+        self
+    }
+}
+
+impl<T: Field<T>> std::ops::AddAssign<Matrix::<T>> for Matrix::<T> {
+    fn add_assign(&mut self, n: Matrix::<T>) {
+        self.add_self(&n);
+    }
+}
+
 impl<T: Field<T>> std::ops::Sub<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
@@ -542,6 +557,21 @@ impl<T: Field<T>> std::ops::Sub<T> for Matrix::<T> {
 impl<T: Field<T>> std::ops::SubAssign<T> for Matrix::<T> {
     fn sub_assign(&mut self, n: T) {
         self.subtract_val(&n);
+    }
+}
+
+impl<T: Field<T>> std::ops::Sub<Matrix::<T>> for Matrix::<T> {
+    type Output = Matrix::<T>;
+
+    fn sub(mut self, n: Matrix::<T>) -> Self::Output {
+        self.subtract_self(&n);
+        self
+    }
+}
+
+impl<T: Field<T>> std::ops::SubAssign<Matrix::<T>> for Matrix::<T> {
+    fn sub_assign(&mut self, n: Matrix::<T>) {
+        self.subtract_self(&n);
     }
 }
 
