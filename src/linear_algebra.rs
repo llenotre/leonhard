@@ -670,6 +670,7 @@ impl<T: Field<T>> From::<T> for Vector::<T> {
 impl<T: Field<T>> Vector::<T> {
 	/// Creates a new instance of size `size`.
     pub fn new(size: usize) -> Self {
+    	assert!(size > 0);
         let mut v = Self {
             data: Vec::with_capacity(size),
         };
