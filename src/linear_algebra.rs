@@ -798,6 +798,18 @@ impl<T: Field<T>> Vector::<T> {
             self.get(0).mul_add(other.get(1), &-(*self.get(1) * *other.get(0))),
         })
     }
+
+	// TODO Unit tests
+	/// Computes the outer product of the current vector and `other`.
+    pub fn outer_product(&self, other: &Vector<T>) -> Matrix<T> {
+    	let mut mat = Matrix::new(self.get_size(), other.get_size());
+    	for i in 0..self.get_size() {
+    		for j in 0..self.get_size() {
+    			*mat.get_mut(i, j) = *self.get(i) * *other.get(j);
+    		}
+    	}
+    	mat
+    }
 }
 
 impl<T: Field<T>> Tensor::<T> for Vector::<T> {
