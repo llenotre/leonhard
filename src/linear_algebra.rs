@@ -745,7 +745,15 @@ impl<T: Field<T>> Vector::<T> {
         self.get_mut(3)
     }
 
-    // TODO to_matrix
+	/// Returns a matrix equivalent to the current vector.
+	pub fn to_matrix(&self) -> Matrix::<T> {
+		let size = self.get_size();
+		let mut mat = Matrix::new(size, 1);
+		for i in 0..size {
+			*mat.get_mut(i, 0) = *self.get(i);
+		}
+		mat
+	}
 
 	// TODO 1-norm, p-norm and inf-norm
 
