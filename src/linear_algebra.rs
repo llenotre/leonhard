@@ -819,6 +819,18 @@ impl<T: Field<T>> Vector::<T> {
     	}
     	mat
     }
+
+	// TODO Unit tests
+    /// Executes the given function `f` for each elements in the vector.
+    /// The first argument of the closure is the value and the second argument is the index in the
+    /// vector.
+    /// The return value is placed back into the vector at the given index.
+    pub fn for_each<F: FnMut(T, usize) -> T>(&mut self, mut f: F) {
+    	for i in 0..self.data.len() {
+    		let val = self.data[i];
+    		self.data[i] = f(val, i);
+    	}
+    }
 }
 
 impl<T: Field<T>> Tensor::<T> for Vector::<T> {
