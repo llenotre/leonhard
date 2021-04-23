@@ -28,6 +28,9 @@ pub trait Tensor<T: Field<T>> {
     fn divide_val(&mut self, n: &T);
 	/// Divides another tensor from the tensor.
     fn divide_self(&mut self, n: &Self);
+
+	/// Computes the Hadamard product with the given tenor `n`.
+	fn hadamard_product(&self, n: &Self) -> Self;
 }
 
 /// Structure representing a matrix.
@@ -179,20 +182,6 @@ impl<T: Field<T>> Matrix::<T> {
         self.transposed = !self.transposed;
         self
     }
-
-	/// Computes the Hadamard product with the given matrix `n`.
-	pub fn hadamard_product(&self, n: &Self) -> Self {
-        assert_eq!(self.get_height(), n.get_height());
-		assert_eq!(self.get_width(), n.get_width());
-
-        let mut m = self.clone();
-		for i in 0..self.get_height() {
-			for j in 0..self.get_width() {
-				*m.get_mut(i, j) *= *n.get(i, j);
-			}
-		}
-		m
-	}
 
 	// TODO Kronecker product
 
@@ -504,6 +493,19 @@ impl<T: Field<T>> Tensor::<T> for Matrix::<T> {
             self.data[i] /= n.data[i];
         }
     }
+
+	fn hadamard_product(&self, n: &Self) -> Self {
+        assert_eq!(self.get_height(), n.get_height());
+		assert_eq!(self.get_width(), n.get_width());
+
+        let mut m = self.clone();
+		for i in 0..self.get_height() {
+			for j in 0..self.get_width() {
+				*m.get_mut(i, j) *= *n.get(i, j);
+			}
+		}
+		m
+	}
 }
 
 impl<T: Field<T>> std::ops::Neg for Matrix::<T> {
@@ -895,6 +897,16 @@ impl<T: Field<T>> Tensor::<T> for Vector::<T> {
             self.data[i] /= n.data[i];
         }
     }
+
+	fn hadamard_product(&self, n: &Self) -> Self {
+        assert_eq!(self.get_size(), n.get_size());
+
+        let mut v = self.clone();
+		for i in 0..self.get_size() {
+			*v.get_mut(i) *= *n.get(i);
+		}
+		v
+	}
 }
 
 impl<T: Field<T>> Index<usize> for Vector::<T> {
