@@ -797,6 +797,12 @@ impl<T: Field<T>> Vector::<T> {
         n
     }
 
+	/// Returns the cosine of the angle between the current vector and `other`. If one or both
+	/// vectors have a size of zero, the behaviour is undefined.
+	pub fn cosine(&self, other: &Vector<T>) -> T {
+		self.dot(other) / self.length() * other.length()
+	}
+
 	/// Computes the cross product between the current vector and `other`. If the vector isn't
 	/// 3-dimensional, the behaviour is undefined.
     pub fn cross_product(&self, other: &Vector<T>) -> Self {
@@ -1583,6 +1589,8 @@ mod tests {
 		let vec1 = Vector::<f64>::from_vec(vec!{0., 1., 0.});
 		assert_eq_delta!(vec0.dot(&vec1), 0. as f64);
 	}
+
+	// TODO Test cosine
 
 	#[test]
 	fn test_vec_cross_product0() {
