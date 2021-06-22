@@ -800,7 +800,7 @@ impl<T: Field<T>> Vector::<T> {
 	/// Returns the cosine of the angle between the current vector and `other`. If one or both
 	/// vectors have a size of zero, the behaviour is undefined.
 	pub fn cosine(&self, other: &Vector<T>) -> T {
-		self.dot(other) / self.length() * other.length()
+		self.dot(other) / (self.length() * other.length())
 	}
 
 	/// Computes the cross product between the current vector and `other`. If the vector isn't
