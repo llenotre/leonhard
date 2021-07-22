@@ -392,8 +392,76 @@ impl<T: Field<T>> Matrix::<T> {
 	// TODO LU decomposition
 	// TODO QR decomposition
 	// TODO Cholesky decomposition
+    // TODO Jordan reduction
 	// TODO Singular value decomposition
-	// TODO Eigenvectors decomposition
+
+    /// Returns the vector at column `n`. If `n` is out of the matrix, the behaviour is undefined.
+    pub fn get_column(&self, n: usize) -> Vector<T> {
+        debug_assert!(n <= self.get_width());
+
+        let mut v = Vector::<T>::new(self.get_height());
+        for i in 0..v.get_size() {
+            v[i] = *self.get(i, n);
+        }
+
+        v
+    }
+
+    // TODO Unit test
+    /// Computes the QR decomposition of the current matrix using the Gram-Schmidt process.
+    pub fn qr_decomposition(&self) -> (Self, Self) {
+        let mut u = Vec::new();
+        let mut e = Vec::new();
+
+        for i in 0..self.get_width() {
+            let col = self.get_column(i);
+            let mut curr_u = col.clone();
+
+            for j in 0..i {
+                let u_j = self.get_column(j);
+                let proj = col.clone() * ((u_j.dot(&col)) / (u_j.dot(&u_j)));
+                curr_u -= proj;
+            }
+
+            u.push(curr_u.clone());
+            e.push(curr_u.clone() / curr_u.length());
+        }
+
+        let mut q = Self::new(self.get_width(), self.get_width());
+        for i in 0..self.get_height() {
+            for j in 0..self.get_width() {
+                *q.get_mut(i, j) = *e[j].get(i);
+            }
+        }
+
+        let mut r = Self::new(self.get_width(), self.get_width());
+        for i in 0..self.get_height() {
+            for j in i..self.get_width() {
+                *r.get_mut(i, j) = e[i].dot(&self.get_column(j));
+            }
+        }
+
+        (q, r)
+    }
+
+    // TODO Unit test
+    /// Returns the list of eigenvalues for the current matrix using the QR algorithm.
+    /// `n` is the number of iterations of the algorithm.
+    pub fn get_eigenvalues(&self, n: u32) -> Vec<T> {
+        let mut m = self.clone();
+
+        for _ in 0..n {
+            let (q, r) = m.qr_decomposition();
+            m = r * q;
+        }
+
+        let mut eigenvalues = Vec::new();
+        for i in 0..min(self.get_height(), self.get_width()) {
+            eigenvalues.push(*m.get(i, i));
+        }
+
+        eigenvalues
+    }
 
 	// TODO Forward substitution
 
