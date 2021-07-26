@@ -407,7 +407,6 @@ impl<T: Field<T>> Matrix::<T> {
         v
     }
 
-    // TODO Unit test
     /// Computes the QR decomposition of the current matrix using the Gram-Schmidt process.
     pub fn qr_decomposition(&self) -> (Self, Self) {
         let mut u = Vec::new();
@@ -444,7 +443,6 @@ impl<T: Field<T>> Matrix::<T> {
         (q, r)
     }
 
-    // TODO Unit test
     /// Returns the list of eigenvalues for the current matrix using the QR algorithm.
     /// `n` is the number of iterations of the algorithm.
     pub fn get_eigenvalues(&self, n: u32) -> Vec<T> {
@@ -1630,6 +1628,65 @@ mod tests {
             }
         }
 		test_system(&mat);
+	}
+
+	#[test]
+	fn test_mat_qr_decomposition0() {
+		let mat = Matrix::<f64>::from_vec(3, 3, vec!{
+			1., 0.,
+			0., 1.,
+		});
+        let (q, r) = mat.qr_decomposition();
+        let m = q.clone() * r.clone();
+
+		assert_eq_delta!(*m.get(0, 0), 1.);
+		assert_eq_delta!(*m.get(1, 0), 0.);
+		assert_eq_delta!(*m.get(1, 1), 1.);
+		assert_eq_delta!(*m.get(0, 1), 0.);
+	}
+
+	#[test]
+	fn test_mat_qr_decomposition1() {
+		let mat = Matrix::<f64>::from_vec(3, 3, vec!{
+			12., -51., 4.,
+			6., 167., -68.,
+			-4., 24., -41.,
+		});
+        let (q, r) = mat.qr_decomposition();
+        let m = q.clone() * r.clone();
+
+        println!("mat: {}", mat);
+        println!("q: {}", q);
+        println!("r: {}", r);
+        println!("m: {}", m);
+		//assert_eq_delta!(*m.get(0, 0), );
+        assert!(false);
+	}
+
+	#[test]
+	fn test_mat_get_eigenvalues0() {
+		let mat = Matrix::<f64>::from_vec(3, 3, vec!{
+			1., 0., 0.,
+			0., 1., 0.,
+			0., 0., 1.,
+		});
+        let eigenvalues = mat.get_eigenvalues(30);
+
+        for i in 0..eigenvalues.len() {
+            assert_eq_delta!(eigenvalues[i], 1. as f64);
+        }
+	}
+
+	#[test]
+	fn test_mat_get_eigenvalues1() {
+		let mat = Matrix::<f64>::from_vec(2, 2, vec!{
+			0., 1.,
+			-2., -3.,
+		});
+        let eigenvalues = mat.get_eigenvalues(30);
+
+        assert_eq_delta!(eigenvalues[0], -1. as f64);
+        assert_eq_delta!(eigenvalues[1], -2. as f64);
 	}
 
 	#[test]
