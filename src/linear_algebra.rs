@@ -1,5 +1,8 @@
 /// This module implements linear algebra utilities.
+
 use crate::Field;
+use std::borrow::Borrow;
+use std::borrow::BorrowMut;
 use std::cmp::min;
 use std::fmt;
 use std::ops::Add;
@@ -15,7 +18,7 @@ use std::ops::Sub;
 use std::ops::SubAssign;
 
 /// Trait to implement for tensor objects.
-pub trait Tensor<T: Field<T>> {
+pub trait Tensor<T: Field<T>>: Borrow<Self> + BorrowMut<Self> {
 	/// Negates the tensor.
 	fn negate(&mut self);
 	/// Adds a value to every elements of the tensor.
