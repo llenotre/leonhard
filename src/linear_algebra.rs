@@ -3,7 +3,17 @@
 use crate::Field;
 use std::cmp::min;
 use std::fmt;
-use std::ops::{Index, IndexMut};
+use std::ops::Add;
+use std::ops::AddAssign;
+use std::ops::Div;
+use std::ops::DivAssign;
+use std::ops::Index;
+use std::ops::IndexMut;
+use std::ops::Mul;
+use std::ops::MulAssign;
+use std::ops::Neg;
+use std::ops::Sub;
+use std::ops::SubAssign;
 
 /// Trait to implement for tensor objects.
 pub trait Tensor<T: Field<T>> {
@@ -574,7 +584,7 @@ impl<T: Field<T>> Tensor::<T> for Matrix::<T> {
 	}
 }
 
-impl<T: Field<T>> std::ops::Neg for Matrix::<T> {
+impl<T: Field<T>> Neg for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn neg(mut self) -> Self::Output {
@@ -583,7 +593,7 @@ impl<T: Field<T>> std::ops::Neg for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Add<T> for Matrix::<T> {
+impl<T: Field<T>> Add<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn add(mut self, n: T) -> Self::Output {
@@ -592,13 +602,13 @@ impl<T: Field<T>> std::ops::Add<T> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::AddAssign<T> for Matrix::<T> {
+impl<T: Field<T>> AddAssign<T> for Matrix::<T> {
     fn add_assign(&mut self, n: T) {
         self.add_val(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Add<Matrix::<T>> for Matrix::<T> {
+impl<T: Field<T>> Add<Matrix::<T>> for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn add(mut self, n: Matrix::<T>) -> Self::Output {
@@ -607,13 +617,13 @@ impl<T: Field<T>> std::ops::Add<Matrix::<T>> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::AddAssign<Matrix::<T>> for Matrix::<T> {
+impl<T: Field<T>> AddAssign<Matrix::<T>> for Matrix::<T> {
     fn add_assign(&mut self, n: Matrix::<T>) {
         self.add_self(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Sub<T> for Matrix::<T> {
+impl<T: Field<T>> Sub<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn sub(mut self, n: T) -> Self::Output {
@@ -622,13 +632,13 @@ impl<T: Field<T>> std::ops::Sub<T> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::SubAssign<T> for Matrix::<T> {
+impl<T: Field<T>> SubAssign<T> for Matrix::<T> {
     fn sub_assign(&mut self, n: T) {
         self.subtract_val(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Sub<Matrix::<T>> for Matrix::<T> {
+impl<T: Field<T>> Sub<Matrix::<T>> for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn sub(mut self, n: Matrix::<T>) -> Self::Output {
@@ -637,13 +647,13 @@ impl<T: Field<T>> std::ops::Sub<Matrix::<T>> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::SubAssign<Matrix::<T>> for Matrix::<T> {
+impl<T: Field<T>> SubAssign<Matrix::<T>> for Matrix::<T> {
     fn sub_assign(&mut self, n: Matrix::<T>) {
         self.subtract_self(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Mul<T> for Matrix::<T> {
+impl<T: Field<T>> Mul<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn mul(mut self, n: T) -> Self::Output {
@@ -652,7 +662,7 @@ impl<T: Field<T>> std::ops::Mul<T> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Mul<Matrix::<T>> for Matrix::<T> {
+impl<T: Field<T>> Mul<Matrix::<T>> for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn mul(self, n: Matrix::<T>) -> Self::Output {
@@ -673,7 +683,7 @@ impl<T: Field<T>> std::ops::Mul<Matrix::<T>> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
+impl<T: Field<T>> Mul<Vector::<T>> for Matrix::<T> {
     type Output = Vector::<T>;
 
     fn mul(self, n: Vector::<T>) -> Self::Output {
@@ -690,13 +700,13 @@ impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::MulAssign<T> for Matrix::<T> {
+impl<T: Field<T>> MulAssign<T> for Matrix::<T> {
     fn mul_assign(&mut self, n: T) {
         self.multiply_val(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Div<T> for Matrix::<T> {
+impl<T: Field<T>> Div<T> for Matrix::<T> {
     type Output = Matrix::<T>;
 
     fn div(mut self, n: T) -> Self::Output {
@@ -705,7 +715,7 @@ impl<T: Field<T>> std::ops::Div<T> for Matrix::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::DivAssign<T> for Matrix::<T> {
+impl<T: Field<T>> DivAssign<T> for Matrix::<T> {
     fn div_assign(&mut self, n: T) {
         self.divide_val(&n);
     }
@@ -995,7 +1005,7 @@ impl<T: Field<T>> IndexMut<usize> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Neg for Vector::<T> {
+impl<T: Field<T>> Neg for Vector::<T> {
     type Output = Vector::<T>;
 
     fn neg(mut self) -> Self::Output {
@@ -1004,7 +1014,7 @@ impl<T: Field<T>> std::ops::Neg for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Add<T> for Vector::<T> {
+impl<T: Field<T>> Add<T> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn add(mut self, n: T) -> Self::Output {
@@ -1013,7 +1023,7 @@ impl<T: Field<T>> std::ops::Add<T> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Add<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> Add<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn add(mut self, n: Vector::<T>) -> Self::Output {
@@ -1022,19 +1032,19 @@ impl<T: Field<T>> std::ops::Add<Vector::<T>> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::AddAssign<T> for Vector::<T> {
+impl<T: Field<T>> AddAssign<T> for Vector::<T> {
     fn add_assign(&mut self, n: T) {
         self.add_val(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::AddAssign<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> AddAssign<Vector::<T>> for Vector::<T> {
     fn add_assign(&mut self, n: Vector::<T>) {
         self.add_self(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Sub<T> for Vector::<T> {
+impl<T: Field<T>> Sub<T> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn sub(mut self, n: T) -> Self::Output {
@@ -1043,7 +1053,7 @@ impl<T: Field<T>> std::ops::Sub<T> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Sub<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> Sub<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn sub(mut self, n: Vector::<T>) -> Self::Output {
@@ -1052,19 +1062,19 @@ impl<T: Field<T>> std::ops::Sub<Vector::<T>> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::SubAssign<T> for Vector::<T> {
+impl<T: Field<T>> SubAssign<T> for Vector::<T> {
     fn sub_assign(&mut self, n: T) {
         self.subtract_val(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::SubAssign<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> SubAssign<Vector::<T>> for Vector::<T> {
     fn sub_assign(&mut self, n: Vector::<T>) {
         self.subtract_self(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Mul<T> for Vector::<T> {
+impl<T: Field<T>> Mul<T> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn mul(mut self, n: T) -> Self::Output {
@@ -1073,7 +1083,7 @@ impl<T: Field<T>> std::ops::Mul<T> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> Mul<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn mul(mut self, n: Vector::<T>) -> Self::Output {
@@ -1082,19 +1092,19 @@ impl<T: Field<T>> std::ops::Mul<Vector::<T>> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::MulAssign<T> for Vector::<T> {
+impl<T: Field<T>> MulAssign<T> for Vector::<T> {
     fn mul_assign(&mut self, n: T) {
         self.multiply_val(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::MulAssign<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> MulAssign<Vector::<T>> for Vector::<T> {
     fn mul_assign(&mut self, n: Vector::<T>) {
         self.multiply_self(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::Div<T> for Vector::<T> {
+impl<T: Field<T>> Div<T> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn div(mut self, n: T) -> Self::Output {
@@ -1103,7 +1113,7 @@ impl<T: Field<T>> std::ops::Div<T> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::Div<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> Div<Vector::<T>> for Vector::<T> {
     type Output = Vector::<T>;
 
     fn div(mut self, n: Vector::<T>) -> Self::Output {
@@ -1112,13 +1122,13 @@ impl<T: Field<T>> std::ops::Div<Vector::<T>> for Vector::<T> {
     }
 }
 
-impl<T: Field<T>> std::ops::DivAssign<T> for Vector::<T> {
+impl<T: Field<T>> DivAssign<T> for Vector::<T> {
     fn div_assign(&mut self, n: T) {
         self.divide_val(&n);
     }
 }
 
-impl<T: Field<T>> std::ops::DivAssign<Vector::<T>> for Vector::<T> {
+impl<T: Field<T>> DivAssign<Vector::<T>> for Vector::<T> {
     fn div_assign(&mut self, n: Vector::<T>) {
         self.divide_self(&n);
     }
