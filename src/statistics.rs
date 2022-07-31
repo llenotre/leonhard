@@ -1,7 +1,7 @@
 use crate::linear_algebra::*;
 
 // TODO Generic
-pub fn covariance_matrix(values: &Vec::<Vector::<f64>>) -> Matrix::<f64> {
+pub fn covariance_matrix(values: &Vec<Vector<f64>>) -> Matrix<f64> {
 	// TODO Check that at least there is a least one entry
 	// TODO Check that every vectors have the same dimension
 

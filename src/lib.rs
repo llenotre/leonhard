@@ -6,18 +6,34 @@ pub mod math;
 pub mod polynom;
 pub mod statistics;
 
-pub trait Field<T>: Copy + std::fmt::Display
-	+ std::ops::Neg<Output = T>
-	+ std::ops::Add<Output = T>
-	+ std::ops::AddAssign
-	+ std::ops::Sub<Output = T>
-	+ std::ops::SubAssign
-	+ std::ops::Mul<Output = T>
-	+ std::ops::MulAssign
-	+ std::ops::Div<Output = T>
-	+ std::ops::DivAssign
-	+ std::cmp::PartialOrd {
+use std::cmp::PartialOrd;
+use std::fmt;
+use std::ops::Add;
+use std::ops::AddAssign;
+use std::ops::Div;
+use std::ops::DivAssign;
+use std::ops::Mul;
+use std::ops::MulAssign;
+use std::ops::Neg;
+use std::ops::Sub;
+use std::ops::SubAssign;
 
+/// Trait representing a field (algebraic structure).
+pub trait Field<T>:
+	Copy
+	+ Clone
+	+ fmt::Display
+	+ Neg<Output = T>
+	+ Add<Output = T>
+	+ AddAssign
+	+ Sub<Output = T>
+	+ SubAssign
+	+ Mul<Output = T>
+	+ MulAssign
+	+ Div<Output = T>
+	+ DivAssign
+	+ PartialOrd
+{
 	fn additive_identity() -> T;
 	fn multiplicative_identity() -> T;
 
@@ -32,7 +48,7 @@ pub trait Field<T>: Copy + std::fmt::Display
 
 macro_rules! primitive_field {
 	($type:ident) => {
-		impl Field::<$type> for $type {
+		impl Field<$type> for $type {
 			fn additive_identity() -> $type {
 				0 as $type
 			}
@@ -61,7 +77,7 @@ macro_rules! primitive_field {
 				((*n as f64) - (*self as f64)).abs() < 0.000001
 			}
 		}
-	}
+	};
 }
 
 primitive_field!(i8);
